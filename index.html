@@ -2,707 +2,2581 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="العفرون أونلاين - منصة الإعلانات المبوبة الأولى في منطقة العفرون">
-    <meta name="keywords" content="إعلانات, بيع, شراء, العفرون, البليدة, الجزائر">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="العفرون أونلاين - منصة الإعلانات المبوبة">
     <title>العفرون أونلاين | El Affroun Online</title>
-    
-    <!-- Favicon -->
     <link rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --secondary: #ff6d00;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1a1a2e;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --white: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --radius: 12px;
+            --radius-lg: 20px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        body.modal-open { overflow: hidden; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        .animate-fade { animation: fadeIn 0.5s ease; }
+        .animate-slide-up { animation: slideUp 0.5s ease; }
+        .animate-pulse { animation: pulse 2s infinite; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 95%;
+            width: 400px;
+        }
+        
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            color: var(--white);
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            animation: slideDown 0.3s ease;
+        }
+        
+        .toast.success { background: linear-gradient(135deg, var(--success), #059669); }
+        .toast.error { background: linear-gradient(135deg, var(--danger), #dc2626); }
+        .toast.warning { background: linear-gradient(135deg, var(--warning), #d97706); }
+        .toast.info { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+        
+        .toast-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .toast-close {
+            margin-right: auto;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 1.2rem;
+        }
+        
+        .toast-close:hover { opacity: 1; }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 12px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .menu-btn:hover { background: rgba(255,255,255,0.25); }
+        
+        .logo {
+            height: 45px;
+            cursor: pointer;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+        
+        .header-btn.icon-only {
+            padding: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .header-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lang-btn {
+            background: white;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* Side Menu */
+        .side-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .side-overlay.open { opacity: 1; visibility: visible; }
+        
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            max-width: 85%;
+            height: 100%;
+            background: white;
+            z-index: 201;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .side-menu.open { right: 0; }
+        
+        .side-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+        
+        .side-close {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .side-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        
+        .side-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        
+        .side-brand h3 { font-size: 1.1rem; }
+        .side-brand p { font-size: 0.8rem; opacity: 0.8; }
+        
+        .side-user {
+            display: none;
+            padding: 15px 20px;
+            background: var(--gray-100);
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .side-user.show { display: flex; }
+        
+        .side-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .side-items {
+            flex: 1;
+            padding: 15px 0;
+            overflow-y: auto;
+        }
+        
+        .side-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: right;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .side-item:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+            padding-right: 25px;
+        }
+        
+        .side-item.active {
+            background: rgba(26,115,232,0.1);
+            color: var(--primary);
+            border-right: 4px solid var(--primary);
+        }
+        
+        .side-item i { width: 24px; text-align: center; font-size: 1.1rem; }
+        
+        .side-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 10px 20px;
+        }
+        
+        .side-item.logout { color: var(--danger); }
+        
+        /* Banner Slider */
+        .banner-slider {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            overflow: hidden;
+            background: var(--dark);
+        }
+        
+        .banner-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .banner-slide.active { opacity: 1; }
+        
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .banner-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .banner-desc {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            max-width: 500px;
+        }
+        
+        .banner-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            color: var(--gray-800);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        .banner-nav:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .banner-nav.prev { left: 15px; }
+        .banner-nav.next { right: 15px; }
+        
+        .banner-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .banner-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .banner-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+        
+        /* Categories */
+        .categories-section {
+            padding: 40px 15px;
+            background: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .category-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 10px;
+            background: var(--gray-100);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        .category-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+        
+        .category-card:hover .category-img {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+        
+        .category-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        /* Ads Section */
+        .ads-section {
+            padding: 40px 15px;
+        }
+        
+        .featured-section {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+        
+        .ads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .ad-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .ad-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .ad-card.featured { border: 3px solid var(--warning); }
+        
+        .ad-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, var(--warning), #f59e0b);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .ad-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .ad-card:hover .ad-image { transform: scale(1.05); }
+        
+        .ad-content { padding: 15px; }
+        
+        .ad-category {
+            display: inline-block;
+            background: rgba(26,115,232,0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .ad-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .ad-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 8px;
+        }
+        
+        .ad-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+        }
+        
+        .ad-location i { color: var(--primary); }
+        
+        .ad-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-top: 1px solid var(--gray-200);
+            background: var(--gray-100);
+        }
+        
+        .ad-date {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+        
+        .ad-actions { display: flex; gap: 8px; }
+        
+        .ad-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .ad-action-btn:hover { transform: scale(1.15); }
+        .ad-action-btn.msg { color: var(--primary); }
+        .ad-action-btn.msg:hover { background: var(--primary); color: white; }
+        .ad-action-btn.report { color: var(--danger); }
+        .ad-action-btn.report:hover { background: var(--danger); color: white; }
+        
+        .section-more {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(26,115,232,0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(26,115,232,0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+        
+        .btn-block { width: 100%; }
+        .btn-lg { padding: 16px 32px; font-size: 1.1rem; }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* Floating Buttons */
+        .floating-btns {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 50;
+        }
+        
+        .float-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s;
+            opacity: 0.75;
+        }
+        
+        .float-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .float-btn.add {
+            background: linear-gradient(135deg, var(--secondary), #e55a00);
+            color: white;
+        }
+        
+        .float-btn.filter {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .float-btn.search {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.open { opacity: 1; visibility: visible; }
+        
+        .modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.open .modal { transform: scale(1); }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-title i { color: var(--primary); }
+        
+        .modal-close {
+            background: var(--gray-100);
+            color: var(--gray-600);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        .modal-body { padding: 20px; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 18px; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+        
+        .form-group label i {
+            color: var(--primary);
+            margin-left: 6px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(26,115,232,0.1);
+        }
+        
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: var(--gray-100);
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .auth-form { display: none; animation: fadeIn 0.3s; }
+        .auth-form.active { display: block; }
+        
+        .image-upload {
+            border: 3px dashed var(--gray-300);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .image-upload:hover {
+            border-color: var(--primary);
+            background: rgba(26,115,232,0.05);
+        }
+        
+        .image-upload input { display: none; }
+        
+        .image-upload i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .image-upload p {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+        
+        .image-upload span {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius);
+            display: none;
+        }
+        
+        .image-upload.has-image .upload-placeholder { display: none; }
+        .image-upload.has-image .image-preview { display: block; }
+        
+        /* Filter */
+        .filter-section { margin-bottom: 25px; }
+        
+        .filter-section h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .filter-option {
+            padding: 8px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 25px;
+            background: white;
+            color: var(--gray-700);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-option:hover { border-color: var(--primary); }
+        
+        .filter-option.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .price-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .price-range input { flex: 1; }
+        
+        /* Ad Detail */
+        .ad-detail {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gray-100);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .ad-detail-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+        }
+        
+        .ad-detail-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .ad-detail-header {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .ad-detail-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(26,115,232,0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .ad-detail-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .ad-detail-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+        
+        .ad-detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-600);
+        }
+        
+        .meta-item i { color: var(--primary); }
+        
+        .ad-detail-desc {
+            margin-bottom: 25px;
+        }
+        
+        .ad-detail-desc h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .ad-detail-desc p {
+            color: var(--gray-700);
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+        
+        .ad-detail-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .detail-btn:hover { transform: translateY(-3px); }
+        
+        .detail-btn.phone {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+        
+        .detail-btn.message {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .detail-btn.report {
+            grid-column: span 2;
+            background: var(--gray-100);
+            color: var(--danger);
+            border: 2px solid var(--gray-200);
+        }
+        
+        .detail-btn.report:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .seller-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--gray-100);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .seller-card:hover { background: rgba(26,115,232,0.1); }
+        
+        .seller-avatar {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .seller-info h4 {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .seller-info p {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+        }
+        
+        /* Profile */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-lg);
+            padding: 40px 20px;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0 auto 20px;
+        }
+        
+        .profile-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        
+        .stat-value { font-size: 1.5rem; font-weight: 800; }
+        .stat-label { font-size: 0.9rem; opacity: 0.9; }
+        
+        /* Messages */
+        .messages-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .messages-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        
+        .messages-tab {
+            flex: 1;
+            padding: 18px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .messages-tab.active {
+            color: var(--primary);
+            background: rgba(26,115,232,0.1);
+        }
+        
+        .messages-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+        
+        .messages-list { max-height: 500px; overflow-y: auto; }
+        
+        .message-item {
+            display: flex;
+            gap: 15px;
+            padding: 18px;
+            border-bottom: 1px solid var(--gray-100);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .message-item:hover { background: var(--gray-100); }
+        .message-item.unread { background: rgba(26,115,232,0.05); }
+        
+        .message-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .message-content { flex: 1; min-width: 0; }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .message-sender { font-weight: 600; color: var(--dark); }
+        .message-time { font-size: 0.8rem; color: var(--gray-500); }
+        
+        .message-text {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .unread-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Info Pages */
+        .info-page {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 15px;
+        }
+        
+        .info-page h1 {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+        
+        .info-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+        
+        .info-content h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin: 25px 0 15px;
+        }
+        
+        .info-content p {
+            color: var(--gray-700);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .info-content ul {
+            margin: 15px 0;
+            padding-right: 20px;
+        }
+        
+        .info-content li {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-content li i { color: var(--success); }
+        
+        .contact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .contact-card {
+            background: var(--gray-100);
+            padding: 25px;
+            border-radius: var(--radius);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+        
+        .contact-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .contact-card h3 {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .contact-card p { color: var(--gray-600); }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-500);
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .no-results p { font-size: 1.2rem; }
+        
+        /* Page */
+        .page { display: none; animation: fadeIn 0.4s; }
+        .page.active { display: block; }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 50px 15px 30px;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--warning);
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #aaa;
+            line-height: 2;
+            display: block;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+        
+        .footer-section a:hover { color: white; }
+        
+        .footer-social {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .footer-social a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #888;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .banner-slider { height: 280px; }
+            .banner-title { font-size: 1.5rem; }
+            .banner-desc { font-size: 0.9rem; }
+            .banner-nav { width: 40px; height: 40px; }
+            
+            .categories-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .category-card { padding: 15px 8px; }
+            .category-img { width: 55px; height: 55px; }
+            .category-name { font-size: 0.75rem; }
+            
+            .ads-grid { grid-template-columns: 1fr; }
+            
+            .form-row { grid-template-columns: 1fr; }
+            .ad-detail-actions { grid-template-columns: 1fr; }
+            .detail-btn.report { grid-column: span 1; }
+            
+            .header-btn span { display: none; }
+            .header-btn { padding: 10px; }
+            .logo { height: 40px; }
+            
+            .floating-btns { bottom: 20px; left: 15px; }
+            .float-btn { width: 50px; height: 50px; font-size: 1.1rem; }
+            
+            .profile-stats { gap: 25px; }
+            .stat-value { font-size: 1.2rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .categories-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .category-img { width: 50px; height: 50px; }
+            .category-name { font-size: 0.7rem; }
+            
+            .banner-slider { height: 250px; }
+            .banner-title { font-size: 1.3rem; }
+            
+            .section-title { font-size: 1.3rem; }
+            
+            .ad-detail-title { font-size: 1.3rem; }
+            .ad-detail-price { font-size: 1.6rem; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-content">
-            <div class="loading-logo">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="Logo">
-            </div>
-            <div class="loading-spinner"></div>
-            <p class="loading-text">جاري التحميل...</p>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
-
-    <!-- Side Menu Overlay -->
-    <div id="side-menu-overlay" class="side-menu-overlay"></div>
-
-    <!-- Side Menu -->
-    <nav id="side-menu" class="side-menu">
-        <button class="side-menu-close" id="close-menu">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="side-menu-header">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="Logo" class="side-menu-logo">
-            <div class="side-menu-brand">
-                <span class="brand-ar">العفرون أونلاين</span>
-                <span class="brand-fr">El Affroun Online</span>
-            </div>
-        </div>
-        <div class="side-menu-user" id="menu-user-section" style="display: none;">
-            <div class="menu-user-avatar" id="menu-user-avatar">U</div>
-            <div class="menu-user-info">
-                <span class="menu-user-name" id="menu-user-name">المستخدم</span>
-                <span class="menu-user-email" id="menu-user-email">email@example.com</span>
-            </div>
-        </div>
-        <ul class="side-menu-items">
-            <li><a href="#" class="side-menu-item active" data-page="home"><i class="fas fa-home"></i><span data-translate="home">الرئيسية</span></a></li>
-            <li><a href="#" class="side-menu-item" data-page="ads"><i class="fas fa-th-large"></i><span data-translate="allAds">جميع الإعلانات</span></a></li>
-            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item" data-page="messages"><i class="fas fa-comments"></i><span data-translate="messages">الرسائل</span><span class="menu-badge" id="menu-messages-badge" style="display: none;">0</span></a></li>
-            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item" data-page="my-ads"><i class="fas fa-bullhorn"></i><span data-translate="myAds">إعلاناتي</span></a></li>
-            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item" data-page="profile"><i class="fas fa-user-edit"></i><span data-translate="editProfile">تعديل الملف</span></a></li>
-            <li class="side-menu-divider"></li>
-            <li><a href="#" class="side-menu-item" data-page="about"><i class="fas fa-info-circle"></i><span data-translate="aboutUs">من نحن</span></a></li>
-            <li><a href="#" class="side-menu-item" data-page="privacy"><i class="fas fa-shield-alt"></i><span data-translate="privacy">سياسة الخصوصية</span></a></li>
-            <li><a href="#" class="side-menu-item" data-page="contact"><i class="fas fa-envelope"></i><span data-translate="contact">اتصل بنا</span></a></li>
-            <li><a href="#" class="side-menu-item" id="report-problem-btn"><i class="fas fa-flag"></i><span data-translate="reportProblem">الإبلاغ عن مشكل</span></a></li>
-            <li class="side-menu-divider auth-required" style="display: none;"></li>
-            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item logout-btn" id="menu-logout"><i class="fas fa-sign-out-alt"></i><span data-translate="logout">تسجيل الخروج</span></a></li>
-        </ul>
-    </nav>
-
-    <!-- Header -->
-    <header class="header" id="header">
-        <div class="header-content">
-            <div class="header-right">
-                <button class="menu-toggle" id="menu-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <a href="#" class="logo" data-page="home">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="العفرون أونلاين">
-                </a>
-            </div>
+    <div id="app"></div>
+    
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaXp-gUOQ_G2s-kM8JhaqW8TJcJ4Nqcuo",
+            authDomain: "comondi-fae4b.firebaseapp.com",
+            projectId: "comondi-fae4b",
+            storageBucket: "comondi-fae4b.firebasestorage.app",
+            messagingSenderId: "932777870241",
+            appId: "1:932777870241:web:78b0cf3a3cf14046be01e0"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // State
+        const state = {
+            lang: localStorage.getItem('lang') || 'ar',
+            user: null,
+            page: 'home',
+            ads: [],
+            sliders: [],
+            messages: [],
+            selectedAd: null,
+            selectedProfile: null,
+            bannerIndex: 0,
+            filters: { category: '', city: '', priceMin: '', priceMax: '', search: '' },
+            showSideMenu: false,
+            showModal: null,
+            authTab: 'login',
+            toasts: []
+        };
+        
+        // Data
+        const categories = [
+            { id: 'cars', ar: 'سيارات', fr: 'Véhicules', img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&h=200&fit=crop' },
+            { id: 'realestate', ar: 'عقارات', fr: 'Immobilier', img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop' },
+            { id: 'phones', ar: 'هواتف', fr: 'Téléphones', img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop' },
+            { id: 'jobs', ar: 'وظائف', fr: 'Emploi', img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200&h=200&fit=crop' },
+            { id: 'services', ar: 'خدمات', fr: 'Services', img: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=200&h=200&fit=crop' },
+            { id: 'appliances', ar: 'أجهزة منزلية', fr: 'Électroménager', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop' },
+            { id: 'fashion', ar: 'ملابس', fr: 'Mode', img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=200&fit=crop' },
+            { id: 'equipment', ar: 'معدات', fr: 'Équipement', img: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=200&h=200&fit=crop' },
+            { id: 'sweets', ar: 'حلويات', fr: 'Pâtisseries', img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=200&h=200&fit=crop' },
+            { id: 'sewing', ar: 'خياطة', fr: 'Couture', img: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=200&h=200&fit=crop' },
+            { id: 'beauty', ar: 'تجميل', fr: 'Beauté', img: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=200&h=200&fit=crop' },
+            { id: 'other', ar: 'أخرى', fr: 'Autres', img: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=200&h=200&fit=crop' }
+        ];
+        
+        const cities = [
+            { id: 'elaffroun', ar: 'العفرون', fr: 'El Affroun' },
+            { id: 'mouzaia', ar: 'موزاية', fr: 'Mouzaia' },
+            { id: 'chiffa', ar: 'شفة', fr: 'Chiffa' },
+            { id: 'ouedjer', ar: 'واد جر', fr: 'Oued Jer' },
+            { id: 'ahmerlaain', ar: 'أحمر العين', fr: 'Ahmer El Ain' },
+            { id: 'hatatba', ar: 'حطاطبة', fr: 'Hatatba' }
+        ];
+        
+        const defaultSliders = [
+            { title: { ar: '🎉 عروض خاصة', fr: '🎉 Offres spéciales' }, desc: { ar: 'خصومات مميزة على جميع المنتجات', fr: 'Remises exceptionnelles sur tous les produits' }, img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&h=500&fit=crop' },
+            { title: { ar: '🏠 عقارات للبيع', fr: '🏠 Immobilier à vendre' }, desc: { ar: 'أفضل العروض العقارية', fr: 'Les meilleures offres immobilières' }, img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=500&fit=crop' },
+            { title: { ar: '🚗 سيارات مستعملة', fr: '🚗 Voitures d\'occasion' }, desc: { ar: 'سيارات بأسعار مناسبة', fr: 'Voitures à prix abordables' }, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1200&h=500&fit=crop' }
+        ];
+        
+        // Translations
+        const t = {
+            ar: {
+                home: 'الرئيسية', allAds: 'جميع الإعلانات', messages: 'الرسائل', myAds: 'إعلاناتي',
+                login: 'تسجيل الدخول', register: 'إنشاء حساب', logout: 'خروج', profile: 'الملف الشخصي',
+                aboutUs: 'من نحن', privacy: 'سياسة الخصوصية', contact: 'اتصل بنا', report: 'إبلاغ',
+                categories: 'الفئات', featuredAds: 'إعلانات مميزة', latestAds: 'أحدث الإعلانات',
+                viewAll: 'عرض الكل', addAd: 'نشر إعلان', filter: 'فلترة', search: 'بحث',
+                category: 'الفئة', city: 'المدينة', title: 'العنوان', description: 'الوصف',
+                price: 'السعر', phone: 'الهاتف', image: 'الصورة', publish: 'نشر', publishing: 'جاري النشر...',
+                name: 'الاسم', email: 'البريد', password: 'كلمة المرور', confirmPassword: 'تأكيد كلمة المرور',
+                showPhone: 'إظهار الهاتف', sendMessage: 'مراسلة', back: 'رجوع',
+                selectCategory: 'اختر الفئة', selectCity: 'اختر المدينة', allCategories: 'الكل', allCities: 'الكل',
+                priceRange: 'نطاق السعر', minPrice: 'الأدنى', maxPrice: 'الأقصى', apply: 'تطبيق', reset: 'إعادة',
+                inbox: 'الواردة', archive: 'الأرشيف', noMessages: 'لا توجد رسائل',
+                uploadImage: 'انقر لرفع صورة', da: 'دج', loginRequired: 'يجب تسجيل الدخول',
+                adPublished: 'تم نشر الإعلان بنجاح!', messageSent: 'تم إرسال الرسالة!',
+                error: 'حدث خطأ', fillFields: 'أكمل جميع الحقول', passwordMismatch: 'كلمات المرور غير متطابقة',
+                welcome: 'مرحباً بك!', accountCreated: 'تم إنشاء الحساب!', loggedOut: 'تم الخروج',
+                noResults: 'لا توجد نتائج', viewProfile: 'عرض الملف', seller: 'البائع'
+            },
+            fr: {
+                home: 'Accueil', allAds: 'Toutes les annonces', messages: 'Messages', myAds: 'Mes annonces',
+                login: 'Connexion', register: 'Inscription', logout: 'Déconnexion', profile: 'Profil',
+                aboutUs: 'À propos', privacy: 'Confidentialité', contact: 'Contact', report: 'Signaler',
+                categories: 'Catégories', featuredAds: 'Annonces vedettes', latestAds: 'Dernières annonces',
+                viewAll: 'Voir tout', addAd: 'Publier', filter: 'Filtrer', search: 'Rechercher',
+                category: 'Catégorie', city: 'Ville', title: 'Titre', description: 'Description',
+                price: 'Prix', phone: 'Téléphone', image: 'Image', publish: 'Publier', publishing: 'Publication...',
+                name: 'Nom', email: 'Email', password: 'Mot de passe', confirmPassword: 'Confirmer',
+                showPhone: 'Afficher le tél.', sendMessage: 'Contacter', back: 'Retour',
+                selectCategory: 'Choisir', selectCity: 'Choisir', allCategories: 'Toutes', allCities: 'Toutes',
+                priceRange: 'Fourchette de prix', minPrice: 'Min', maxPrice: 'Max', apply: 'Appliquer', reset: 'Réinitialiser',
+                inbox: 'Boîte de réception', archive: 'Archives', noMessages: 'Aucun message',
+                uploadImage: 'Cliquez pour télécharger', da: 'DA', loginRequired: 'Connexion requise',
+                adPublished: 'Annonce publiée!', messageSent: 'Message envoyé!',
+                error: 'Erreur', fillFields: 'Remplir tous les champs', passwordMismatch: 'Mots de passe différents',
+                welcome: 'Bienvenue!', accountCreated: 'Compte créé!', loggedOut: 'Déconnecté',
+                noResults: 'Aucun résultat', viewProfile: 'Voir le profil', seller: 'Vendeur'
+            }
+        };
+        
+        // Helpers
+        const txt = (key) => t[state.lang][key] || key;
+        const catName = (id) => { const c = categories.find(x => x.id === id); return c ? c[state.lang] : id; };
+        const cityName = (id) => { const c = cities.find(x => x.id === id); return c ? c[state.lang] : id; };
+        const formatDate = (ts) => ts?.toDate ? ts.toDate().toLocaleDateString(state.lang === 'ar' ? 'ar-DZ' : 'fr-FR') : '';
+        const formatPrice = (p) => `${parseInt(p).toLocaleString()} ${txt('da')}`;
+        
+        // Toast
+        const showToast = (msg, type = 'info') => {
+            const id = Date.now();
+            state.toasts.push({ id, msg, type });
+            render();
+            setTimeout(() => { state.toasts = state.toasts.filter(t => t.id !== id); render(); }, 4000);
+        };
+        
+        // Firebase Operations
+        const loadAds = async () => {
+            try {
+                const snap = await db.collection('ads').where('isActive', '==', true).orderBy('createdAt', 'desc').get();
+                state.ads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                render();
+            } catch (e) { console.error('Load ads error:', e); }
+        };
+        
+        const loadSliders = async () => {
+            try {
+                const snap = await db.collection('sliders').where('isActive', '==', true).get();
+                state.sliders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) { console.error('Load sliders error:', e); }
+        };
+        
+        const loadMessages = async () => {
+            if (!state.user) return;
+            try {
+                const [sent, received] = await Promise.all([
+                    db.collection('messages').where('senderId', '==', state.user.uid).get(),
+                    db.collection('messages').where('receiverId', '==', state.user.uid).get()
+                ]);
+                state.messages = [...sent.docs, ...received.docs].map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) { console.error('Load messages error:', e); }
+        };
+        
+        // Auth
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    state.user = { uid: user.uid, email: user.email, ...doc.data() };
+                } catch (e) { state.user = { uid: user.uid, email: user.email }; }
+                loadMessages();
+            } else {
+                state.user = null;
+            }
+            render();
+        });
+        
+        // Banner Auto-slide
+        setInterval(() => {
+            const all = [...state.sliders.map(s => ({ title: { ar: s.title, fr: s.title }, desc: { ar: s.description, fr: s.description }, img: s.imageUrl })), ...defaultSliders];
+            if (all.length) { state.bannerIndex = (state.bannerIndex + 1) % all.length; render(); }
+        }, 4000);
+        
+        // Render
+        function render() {
+            const app = document.getElementById('app');
+            document.documentElement.lang = state.lang;
+            document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
             
-            <div class="header-search">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="header-search-input" placeholder="ابحث عن..." data-translate-placeholder="searchPlaceholder">
-                <button class="search-btn" id="header-search-btn">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-            </div>
-
-            <div class="header-left">
-                <button class="header-btn notification-btn auth-required-btn" id="notifications-btn" style="display: none;">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
-                </button>
+            const allSliders = [...state.sliders.map(s => ({ title: { ar: s.title, fr: s.title }, desc: { ar: s.description, fr: s.description }, img: s.imageUrl })), ...defaultSliders];
+            const featured = state.ads.filter(a => a.isFeatured);
+            const filtered = getFilteredAds();
+            const unread = state.messages.filter(m => m.receiverId === state.user?.uid && !m.isRead).length;
+            
+            app.innerHTML = `
+                <!-- Toasts -->
+                <div class="toast-container">
+                    ${state.toasts.map(t => `
+                        <div class="toast ${t.type}">
+                            <div class="toast-icon"><i class="fas fa-${t.type === 'success' ? 'check' : t.type === 'error' ? 'times' : 'info'}"></i></div>
+                            <span>${t.msg}</span>
+                            <button class="toast-close" onclick="state.toasts = state.toasts.filter(x => x.id !== ${t.id}); render();">×</button>
+                        </div>
+                    `).join('')}
+                </div>
                 
-                <button class="header-btn messages-btn auth-required-btn" id="messages-btn" style="display: none;">
-                    <i class="fas fa-comments"></i>
-                    <span class="notification-badge" id="messages-badge" style="display: none;">0</span>
-                </button>
-
-                <div class="user-menu" id="user-menu" style="display: none;">
-                    <button class="user-avatar-btn" id="user-avatar-btn">
-                        <span class="user-avatar" id="header-user-avatar">U</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="user-dropdown" id="user-dropdown">
-                        <div class="dropdown-header">
-                            <span class="dropdown-user-name" id="dropdown-user-name">المستخدم</span>
-                            <span class="dropdown-user-email" id="dropdown-user-email">email@example.com</span>
+                <!-- Side Menu -->
+                <div class="side-overlay ${state.showSideMenu ? 'open' : ''}" onclick="state.showSideMenu = false; render();"></div>
+                <nav class="side-menu ${state.showSideMenu ? 'open' : ''}">
+                    <button class="side-close" onclick="state.showSideMenu = false; render();"><i class="fas fa-times"></i></button>
+                    <div class="side-header">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" class="side-logo">
+                        <div class="side-brand"><h3>العفرون أونلاين</h3><p>El Affroun Online</p></div>
+                    </div>
+                    ${state.user ? `<div class="side-user show"><div class="side-avatar">${state.user.name?.charAt(0) || 'U'}</div><div><strong>${state.user.name || 'مستخدم'}</strong><br><small style="color:#666">${state.user.email}</small></div></div>` : ''}
+                    <div class="side-items">
+                        <button class="side-item ${state.page === 'home' ? 'active' : ''}" onclick="navigateTo('home')"><i class="fas fa-home"></i>${txt('home')}</button>
+                        <button class="side-item ${state.page === 'ads' ? 'active' : ''}" onclick="navigateTo('ads')"><i class="fas fa-th-large"></i>${txt('allAds')}</button>
+                        ${state.user ? `
+                            <button class="side-item ${state.page === 'messages' ? 'active' : ''}" onclick="navigateTo('messages')"><i class="fas fa-comments"></i>${txt('messages')} ${unread > 0 ? `<span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:10px;margin-right:auto;font-size:0.75rem">${unread}</span>` : ''}</button>
+                            <button class="side-item ${state.page === 'myads' ? 'active' : ''}" onclick="navigateTo('myads')"><i class="fas fa-bullhorn"></i>${txt('myAds')}</button>
+                        ` : ''}
+                        <div class="side-divider"></div>
+                        <button class="side-item" onclick="navigateTo('about')"><i class="fas fa-info-circle"></i>${txt('aboutUs')}</button>
+                        <button class="side-item" onclick="navigateTo('privacy')"><i class="fas fa-shield-alt"></i>${txt('privacy')}</button>
+                        <button class="side-item" onclick="navigateTo('contact')"><i class="fas fa-envelope"></i>${txt('contact')}</button>
+                        ${state.user ? `<div class="side-divider"></div><button class="side-item logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i>${txt('logout')}</button>` : ''}
+                    </div>
+                </nav>
+                
+                <!-- Header -->
+                <header class="header">
+                    <div class="header-content">
+                        <div class="header-right">
+                            <button class="menu-btn" onclick="state.showSideMenu = true; render();"><i class="fas fa-bars"></i></button>
+                            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" class="logo" onclick="navigateTo('home')">
                         </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item" data-page="my-ads"><i class="fas fa-bullhorn"></i><span data-translate="myAds">إعلاناتي</span></a>
-                        <a href="#" class="dropdown-item" data-page="messages"><i class="fas fa-comments"></i><span data-translate="messages">الرسائل</span></a>
-                        <a href="#" class="dropdown-item" data-page="profile"><i class="fas fa-user-edit"></i><span data-translate="editProfile">تعديل الملف</span></a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i><span data-translate="logout">تسجيل الخروج</span></a>
-                    </div>
-                </div>
-
-                <button class="header-btn login-btn" id="login-btn">
-                    <i class="fas fa-user"></i>
-                    <span data-translate="login">تسجيل الدخول</span>
-                </button>
-
-                <button class="header-btn lang-switch" id="lang-switch">
-                    <span id="lang-text">FR</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main id="main-content">
-        <!-- Home Page -->
-        <div id="page-home" class="page active">
-            <!-- Banner Slider -->
-            <section class="banner-slider" id="banner-slider">
-                <div class="banner-slides" id="banner-slides"></div>
-                <button class="banner-nav prev" id="banner-prev"><i class="fas fa-chevron-right"></i></button>
-                <button class="banner-nav next" id="banner-next"><i class="fas fa-chevron-left"></i></button>
-                <div class="banner-dots" id="banner-dots"></div>
-                <div class="banner-progress" id="banner-progress"></div>
-            </section>
-
-            <!-- Categories Slider -->
-            <section class="categories-section">
-                <h2 class="section-title" data-translate="categories">الفئات</h2>
-                <div class="categories-slider" id="categories-slider">
-                    <button class="cat-nav prev" id="cat-prev"><i class="fas fa-chevron-right"></i></button>
-                    <div class="categories-track" id="categories-track"></div>
-                    <button class="cat-nav next" id="cat-next"><i class="fas fa-chevron-left"></i></button>
-                </div>
-                <div class="cat-dots" id="cat-dots"></div>
-            </section>
-
-            <!-- Featured Ads -->
-            <section class="ads-section featured-section" id="featured-section" style="display: none;">
-                <h2 class="section-title"><i class="fas fa-star"></i> <span data-translate="featuredAds">إعلانات مميزة</span></h2>
-                <div class="ads-grid" id="featured-ads"></div>
-            </section>
-
-            <!-- Latest Ads -->
-            <section class="ads-section">
-                <h2 class="section-title" data-translate="latestAds">أحدث الإعلانات</h2>
-                <div class="ads-grid" id="latest-ads"></div>
-                <div class="section-footer">
-                    <button class="btn btn-primary btn-lg" id="view-all-ads" data-page="ads">
-                        <span data-translate="viewAll">عرض الكل</span>
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Stats Section -->
-            <section class="stats-section">
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-bullhorn"></i></div>
-                        <div class="stat-number" id="stat-ads">0</div>
-                        <div class="stat-label" data-translate="totalAds">إجمالي الإعلانات</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-number" id="stat-users">0</div>
-                        <div class="stat-label" data-translate="totalUsers">المستخدمين</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
-                        <div class="stat-number" id="stat-cities">6</div>
-                        <div class="stat-label" data-translate="cities">المدن</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-th-large"></i></div>
-                        <div class="stat-number" id="stat-categories">12</div>
-                        <div class="stat-label" data-translate="categoriesCount">الفئات</div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- All Ads Page -->
-        <div id="page-ads" class="page">
-            <div class="page-header">
-                <h1 class="page-title" data-translate="allAds">جميع الإعلانات</h1>
-                <div class="active-filters" id="active-filters"></div>
-            </div>
-            <div class="ads-grid" id="all-ads"></div>
-            <div class="no-results" id="no-results" style="display: none;">
-                <i class="fas fa-search"></i>
-                <p data-translate="noResults">لا توجد نتائج</p>
-            </div>
-        </div>
-
-        <!-- Ad Detail Page -->
-        <div id="page-ad-detail" class="page">
-            <div class="ad-detail" id="ad-detail-content"></div>
-        </div>
-
-        <!-- Profile Page -->
-        <div id="page-profile" class="page">
-            <div class="profile-page" id="profile-content"></div>
-        </div>
-
-        <!-- Messages Page -->
-        <div id="page-messages" class="page">
-            <div class="messages-page" id="messages-content"></div>
-        </div>
-
-        <!-- My Ads Page -->
-        <div id="page-my-ads" class="page">
-            <div class="my-ads-page">
-                <h1 class="page-title" data-translate="myAds">إعلاناتي</h1>
-                <div class="ads-grid" id="my-ads-grid"></div>
-            </div>
-        </div>
-
-        <!-- About Page -->
-        <div id="page-about" class="page">
-            <div class="info-page">
-                <button class="back-btn" data-page="home"><i class="fas fa-arrow-right"></i> <span data-translate="back">رجوع</span></button>
-                <h1 data-translate="aboutUs">من نحن</h1>
-                <div class="info-content">
-                    <p>العفرون أونلاين هي منصة إعلانات مبوبة محلية تخدم سكان منطقة العفرون والمناطق المجاورة في ولاية البليدة، الجزائر.</p>
-                    <h2>رؤيتنا</h2>
-                    <p>نسعى لتكون المنصة الأولى والأكثر موثوقية للإعلانات المبوبة في منطقتنا، حيث يمكن للجميع البيع والشراء بسهولة وأمان.</p>
-                    <h2>مميزاتنا</h2>
-                    <ul>
-                        <li><i class="fas fa-check-circle"></i> سهولة الاستخدام والنشر</li>
-                        <li><i class="fas fa-check-circle"></i> تصنيفات متعددة تغطي جميع الاحتياجات</li>
-                        <li><i class="fas fa-check-circle"></i> نظام مراسلة آمن</li>
-                        <li><i class="fas fa-check-circle"></i> دعم ثنائي اللغة (العربية والفرنسية)</li>
-                        <li><i class="fas fa-check-circle"></i> تصميم متجاوب يعمل على جميع الأجهزة</li>
-                    </ul>
-                    <h2>فريقنا</h2>
-                    <p>نحن فريق من المطورين والمصممين المحليين نعمل بشغف لتقديم أفضل تجربة للمستخدمين.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Privacy Page -->
-        <div id="page-privacy" class="page">
-            <div class="info-page">
-                <button class="back-btn" data-page="home"><i class="fas fa-arrow-right"></i> <span data-translate="back">رجوع</span></button>
-                <h1 data-translate="privacy">سياسة الخصوصية</h1>
-                <div class="info-content">
-                    <h2>جمع المعلومات</h2>
-                    <p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو نشر إعلان، مثل الاسم والبريد الإلكتروني ورقم الهاتف.</p>
-                    <h2>استخدام المعلومات</h2>
-                    <p>نستخدم المعلومات المجمعة لتقديم خدماتنا وتحسينها، والتواصل معك، وضمان أمان المنصة.</p>
-                    <h2>حماية المعلومات</h2>
-                    <p>نتخذ إجراءات أمنية مناسبة لحماية معلوماتك الشخصية من الوصول غير المصرح به أو التعديل أو الإفشاء أو الإتلاف.</p>
-                    <h2>مشاركة المعلومات</h2>
-                    <p>لا نشارك معلوماتك الشخصية مع أطراف ثالثة إلا في الحالات التالية:</p>
-                    <ul>
-                        <li><i class="fas fa-check-circle"></i> بموافقتك الصريحة</li>
-                        <li><i class="fas fa-check-circle"></i> للامتثال للقوانين واللوائح</li>
-                        <li><i class="fas fa-check-circle"></i> لحماية حقوقنا وممتلكاتنا</li>
-                    </ul>
-                    <h2>ملفات تعريف الارتباط</h2>
-                    <p>نستخدم ملفات تعريف الارتباط لتحسين تجربتك على الموقع وتذكر تفضيلاتك.</p>
-                    <h2>حقوقك</h2>
-                    <p>يحق لك الوصول إلى معلوماتك الشخصية وتصحيحها أو حذفها في أي وقت.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Page -->
-        <div id="page-contact" class="page">
-            <div class="info-page">
-                <button class="back-btn" data-page="home"><i class="fas fa-arrow-right"></i> <span data-translate="back">رجوع</span></button>
-                <h1 data-translate="contact">اتصل بنا</h1>
-                <div class="info-content">
-                    <p>نحن هنا لمساعدتك! يمكنك التواصل معنا عبر أي من الطرق التالية:</p>
-                    <div class="contact-cards">
-                        <div class="contact-card">
-                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
-                            <h3>البريد الإلكتروني</h3>
-                            <p>contact@elaffroun-online.com</p>
-                        </div>
-                        <div class="contact-card">
-                            <div class="contact-icon"><i class="fas fa-phone"></i></div>
-                            <h3>الهاتف</h3>
-                            <p dir="ltr">+213 XX XX XX XX</p>
-                        </div>
-                        <div class="contact-card">
-                            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
-                            <h3>العنوان</h3>
-                            <p>العفرون، البليدة، الجزائر</p>
-                        </div>
-                        <div class="contact-card">
-                            <div class="contact-icon"><i class="fab fa-facebook"></i></div>
-                            <h3>فيسبوك</h3>
-                            <p>@ElAffrounOnline</p>
+                        <div class="header-left">
+                            ${state.user ? `
+                                <button class="header-btn icon-only" onclick="navigateTo('messages')">
+                                    <i class="fas fa-comments"></i>
+                                    ${unread > 0 ? `<span class="badge">${unread}</span>` : ''}
+                                </button>
+                                <button class="header-btn icon-only" style="background:linear-gradient(135deg,var(--primary),var(--secondary))" onclick="showToast('مرحباً ${state.user.name || ''}', 'info')">
+                                    ${state.user.name?.charAt(0) || 'U'}
+                                </button>
+                            ` : `
+                                <button class="header-btn" onclick="state.showModal = 'auth'; render();"><i class="fas fa-user"></i><span>${txt('login')}</span></button>
+                            `}
+                            <button class="header-btn lang-btn" onclick="state.lang = state.lang === 'ar' ? 'fr' : 'ar'; localStorage.setItem('lang', state.lang); render();">${state.lang === 'ar' ? 'FR' : 'عربي'}</button>
                         </div>
                     </div>
-                    <div class="contact-form-section">
-                        <h2>أرسل لنا رسالة</h2>
-                        <form class="contact-form" id="contact-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label><i class="fas fa-user"></i> الاسم</label>
-                                    <input type="text" name="name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
-                                    <input type="email" name="email" required>
+                </header>
+                
+                <!-- Pages -->
+                <main>
+                    ${state.page === 'home' ? renderHome(allSliders, featured, filtered) : ''}
+                    ${state.page === 'ads' ? renderAdsPage(filtered) : ''}
+                    ${state.page === 'adDetail' ? renderAdDetail() : ''}
+                    ${state.page === 'profile' ? renderProfile() : ''}
+                    ${state.page === 'messages' ? renderMessages() : ''}
+                    ${state.page === 'myads' ? renderMyAds() : ''}
+                    ${state.page === 'about' ? renderAbout() : ''}
+                    ${state.page === 'privacy' ? renderPrivacy() : ''}
+                    ${state.page === 'contact' ? renderContact() : ''}
+                </main>
+                
+                <!-- Floating Buttons -->
+                <div class="floating-btns">
+                    <button class="float-btn add" onclick="openAddAd()"><i class="fas fa-plus"></i></button>
+                    <button class="float-btn filter" onclick="state.showModal = 'filter'; render();"><i class="fas fa-sliders-h"></i></button>
+                    <button class="float-btn search" onclick="state.showModal = 'search'; render();"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <!-- Footer -->
+                ${renderFooter()}
+                
+                <!-- Modals -->
+                ${renderModals()}
+            `;
+        }
+        
+        function renderHome(sliders, featured, ads) {
+            return `
+                <div class="page active">
+                    <!-- Banner -->
+                    <div class="banner-slider">
+                        ${sliders.map((s, i) => `
+                            <div class="banner-slide ${i === state.bannerIndex ? 'active' : ''}">
+                                <img src="${s.img}" alt="">
+                                <div class="banner-overlay">
+                                    <h2 class="banner-title">${s.title[state.lang]}</h2>
+                                    <p class="banner-desc">${s.desc[state.lang]}</p>
                                 </div>
                             </div>
+                        `).join('')}
+                        <button class="banner-nav prev" onclick="state.bannerIndex = (state.bannerIndex - 1 + ${sliders.length}) % ${sliders.length}; render();"><i class="fas fa-chevron-right"></i></button>
+                        <button class="banner-nav next" onclick="state.bannerIndex = (state.bannerIndex + 1) % ${sliders.length}; render();"><i class="fas fa-chevron-left"></i></button>
+                        <div class="banner-dots">${sliders.map((_, i) => `<button class="banner-dot ${i === state.bannerIndex ? 'active' : ''}" onclick="state.bannerIndex = ${i}; render();"></button>`).join('')}</div>
+                    </div>
+                    
+                    <!-- Categories -->
+                    <section class="categories-section">
+                        <h2 class="section-title">${txt('categories')}</h2>
+                        <div class="categories-grid">
+                            ${categories.map(c => `
+                                <div class="category-card" onclick="state.filters.category = '${c.id}'; navigateTo('ads');">
+                                    <img src="${c.img}" class="category-img" alt="${c[state.lang]}">
+                                    <span class="category-name">${c[state.lang]}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                    
+                    <!-- Featured -->
+                    ${featured.length > 0 ? `
+                        <section class="ads-section featured-section">
+                            <h2 class="section-title"><i class="fas fa-star" style="color:var(--warning)"></i> ${txt('featuredAds')}</h2>
+                            <div class="ads-grid">${featured.slice(0, 4).map(a => renderAdCard(a)).join('')}</div>
+                        </section>
+                    ` : ''}
+                    
+                    <!-- Latest -->
+                    <section class="ads-section">
+                        <h2 class="section-title">${txt('latestAds')}</h2>
+                        <div class="ads-grid">${ads.slice(0, 8).map(a => renderAdCard(a)).join('')}</div>
+                        <div class="section-more">
+                            <button class="btn btn-primary btn-lg" onclick="navigateTo('ads')"><span>${txt('viewAll')}</span> <i class="fas fa-arrow-left"></i></button>
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+        
+        function renderAdsPage(ads) {
+            return `
+                <div class="page active">
+                    <div class="ads-section">
+                        <h2 class="section-title">${txt('allAds')}</h2>
+                        ${hasFilters() ? `<div style="text-align:center;margin-bottom:20px"><button class="btn btn-secondary" onclick="resetFilters()"><i class="fas fa-times"></i> ${txt('reset')}</button></div>` : ''}
+                        ${ads.length > 0 ? `<div class="ads-grid">${ads.map(a => renderAdCard(a)).join('')}</div>` : `<div class="no-results"><i class="fas fa-search"></i><p>${txt('noResults')}</p></div>`}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderAdCard(ad) {
+            return `
+                <div class="ad-card ${ad.isFeatured ? 'featured' : ''}" onclick="openAdDetail('${ad.id}')">
+                    ${ad.isFeatured ? '<div class="ad-badge"><i class="fas fa-star"></i> مميز</div>' : ''}
+                    <img src="${ad.imageUrl || 'https://via.placeholder.com/400x300'}" class="ad-image" alt="${ad.title}">
+                    <div class="ad-content">
+                        <span class="ad-category">${catName(ad.category)}</span>
+                        <h3 class="ad-title">${ad.title}</h3>
+                        <p class="ad-price">${formatPrice(ad.price)}</p>
+                        <p class="ad-location"><i class="fas fa-map-marker-alt"></i> ${cityName(ad.city)}</p>
+                    </div>
+                    <div class="ad-footer">
+                        <span class="ad-date"><i class="far fa-clock"></i> ${formatDate(ad.createdAt)}</span>
+                        <div class="ad-actions">
+                            ${state.user && state.user.uid !== ad.userId ? `<button class="ad-action-btn msg" onclick="event.stopPropagation(); openMessageModal('${ad.id}');"><i class="fas fa-comment"></i></button>` : ''}
+                            <button class="ad-action-btn report" onclick="event.stopPropagation(); openReportModal('${ad.id}');"><i class="fas fa-flag"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderAdDetail() {
+            const ad = state.selectedAd;
+            if (!ad) return '';
+            return `
+                <div class="page active">
+                    <div class="ad-detail animate-fade">
+                        <button class="back-btn" onclick="navigateTo('ads')"><i class="fas fa-arrow-right"></i> ${txt('back')}</button>
+                        <img src="${ad.imageUrl || 'https://via.placeholder.com/800x400'}" class="ad-detail-img" alt="${ad.title}">
+                        <div class="ad-detail-content">
+                            <div class="ad-detail-header">
+                                <span class="ad-detail-category"><i class="fas fa-tag"></i> ${catName(ad.category)}</span>
+                                <h1 class="ad-detail-title">${ad.title}</h1>
+                                <p class="ad-detail-price">${formatPrice(ad.price)}</p>
+                            </div>
+                            <div class="ad-detail-meta">
+                                <span class="meta-item"><i class="fas fa-map-marker-alt"></i> ${cityName(ad.city)}</span>
+                                <span class="meta-item"><i class="far fa-calendar"></i> ${formatDate(ad.createdAt)}</span>
+                            </div>
+                            <div class="ad-detail-desc">
+                                <h3><i class="fas fa-align-left"></i> ${txt('description')}</h3>
+                                <p>${ad.description}</p>
+                            </div>
+                            <div class="ad-detail-actions">
+                                <button class="detail-btn phone" onclick="showPhoneNumber('${ad.phone}')"><i class="fas fa-phone"></i> ${txt('showPhone')}</button>
+                                <button class="detail-btn message" onclick="openMessageModal('${ad.id}')"><i class="fas fa-comment"></i> ${txt('sendMessage')}</button>
+                                <button class="detail-btn report" onclick="openReportModal('${ad.id}')"><i class="fas fa-flag"></i> ${txt('report')}</button>
+                            </div>
+                            <div class="seller-card" onclick="openProfile('${ad.userId}')">
+                                <div class="seller-avatar">${ad.userName?.charAt(0) || 'U'}</div>
+                                <div class="seller-info"><h4>${ad.userName || 'مستخدم'}</h4><p>${txt('viewProfile')} <i class="fas fa-chevron-left"></i></p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderProfile() {
+            const p = state.selectedProfile;
+            if (!p) return '';
+            const userAds = state.ads.filter(a => a.userId === p.id);
+            return `
+                <div class="page active">
+                    <div class="ad-detail animate-fade">
+                        <button class="back-btn" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i> ${txt('back')}</button>
+                        <div class="profile-header">
+                            <div class="profile-avatar">${p.name?.charAt(0) || 'U'}</div>
+                            <h1 class="profile-name">${p.name || 'مستخدم'}</h1>
+                            <div class="profile-stats">
+                                <div><span class="stat-value">${userAds.length}</span><br><span class="stat-label">${txt('allAds')}</span></div>
+                            </div>
+                        </div>
+                        <h2 style="margin:30px 0 20px">${txt('allAds')}</h2>
+                        <div class="ads-grid">${userAds.length > 0 ? userAds.map(a => renderAdCard(a)).join('') : `<div class="no-results" style="grid-column:1/-1"><i class="fas fa-bullhorn"></i><p>${txt('noResults')}</p></div>`}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderMessages() {
+            if (!state.user) return '';
+            const inbox = state.messages.filter(m => m.receiverId === state.user.uid && !m.isRead);
+            const archive = state.messages.filter(m => m.receiverId === state.user.uid && m.isRead);
+            return `
+                <div class="page active">
+                    <div class="ad-detail animate-fade">
+                        <button class="back-btn" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i> ${txt('back')}</button>
+                        <div class="messages-container">
+                            <div class="messages-tabs">
+                                <button class="messages-tab active" onclick="this.classList.add('active'); this.nextElementSibling.classList.remove('active'); document.getElementById('inbox-list').style.display='block'; document.getElementById('archive-list').style.display='none';"><i class="fas fa-inbox"></i> ${txt('inbox')} (${inbox.length})</button>
+                                <button class="messages-tab" onclick="this.classList.add('active'); this.previousElementSibling.classList.remove('active'); document.getElementById('inbox-list').style.display='none'; document.getElementById('archive-list').style.display='block';"><i class="fas fa-archive"></i> ${txt('archive')} (${archive.length})</button>
+                            </div>
+                            <div class="messages-list" id="inbox-list">${renderMessageList(inbox)}</div>
+                            <div class="messages-list" id="archive-list" style="display:none">${renderMessageList(archive)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderMessageList(msgs) {
+            if (msgs.length === 0) return `<div class="no-results"><i class="fas fa-inbox"></i><p>${txt('noMessages')}</p></div>`;
+            return msgs.map(m => `
+                <div class="message-item ${!m.isRead ? 'unread' : ''}" onclick="markAsRead('${m.id}'); showToast(m.message, 'info');">
+                    <div class="message-avatar">${m.senderName?.charAt(0) || 'U'}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">${m.senderName}</span>
+                            <span class="message-time">${formatDate(m.createdAt)}</span>
+                        </div>
+                        <p class="message-text">${m.message}</p>
+                    </div>
+                    ${!m.isRead ? '<div class="unread-dot"></div>' : ''}
+                </div>
+            `).join('');
+        }
+        
+        function renderMyAds() {
+            if (!state.user) return '';
+            const myAds = state.ads.filter(a => a.userId === state.user.uid);
+            return `
+                <div class="page active">
+                    <div class="ads-section">
+                        <h2 class="section-title">${txt('myAds')}</h2>
+                        ${myAds.length > 0 ? `<div class="ads-grid">${myAds.map(a => renderAdCard(a)).join('')}</div>` : `<div class="no-results"><i class="fas fa-bullhorn"></i><p>${txt('noResults')}</p><button class="btn btn-primary" onclick="openAddAd()" style="margin-top:20px"><i class="fas fa-plus"></i> ${txt('addAd')}</button></div>`}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderAbout() {
+            return `
+                <div class="page active">
+                    <div class="info-page animate-fade">
+                        <button class="back-btn" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i> ${txt('back')}</button>
+                        <h1>${txt('aboutUs')}</h1>
+                        <div class="info-content">
+                            <p>${state.lang === 'ar' ? 'العفرون أونلاين هي منصة إعلانات مبوبة محلية تخدم سكان منطقة العفرون والمناطق المجاورة.' : 'El Affroun Online est une plateforme locale de petites annonces au service des habitants de la région d\'El Affroun et ses environs.'}</p>
+                            <h2>${state.lang === 'ar' ? 'مميزاتنا' : 'Nos avantages'}</h2>
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> ${state.lang === 'ar' ? 'سهولة الاستخدام' : 'Facile à utiliser'}</li>
+                                <li><i class="fas fa-check-circle"></i> ${state.lang === 'ar' ? 'تصنيفات متعددة' : 'Catégories multiples'}</li>
+                                <li><i class="fas fa-check-circle"></i> ${state.lang === 'ar' ? 'نظام مراسلة آمن' : 'Messagerie sécurisée'}</li>
+                                <li><i class="fas fa-check-circle"></i> ${state.lang === 'ar' ? 'دعم ثنائي اللغة' : 'Support bilingue'}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderPrivacy() {
+            return `
+                <div class="page active">
+                    <div class="info-page animate-fade">
+                        <button class="back-btn" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i> ${txt('back')}</button>
+                        <h1>${txt('privacy')}</h1>
+                        <div class="info-content">
+                            <h2>${state.lang === 'ar' ? 'جمع المعلومات' : 'Collecte d\'informations'}</h2>
+                            <p>${state.lang === 'ar' ? 'نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو نشر إعلان.' : 'Nous collectons les informations que vous nous fournissez directement lors de la création d\'un compte ou de la publication d\'une annonce.'}</p>
+                            <h2>${state.lang === 'ar' ? 'حماية المعلومات' : 'Protection des informations'}</h2>
+                            <p>${state.lang === 'ar' ? 'نتخذ إجراءات أمنية مناسبة لحماية معلوماتك الشخصية.' : 'Nous prenons des mesures de sécurité appropriées pour protéger vos informations personnelles.'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderContact() {
+            return `
+                <div class="page active">
+                    <div class="info-page animate-fade">
+                        <button class="back-btn" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i> ${txt('back')}</button>
+                        <h1>${txt('contact')}</h1>
+                        <div class="info-content">
+                            <div class="contact-cards">
+                                <div class="contact-card"><i class="fas fa-envelope"></i><h3>${state.lang === 'ar' ? 'البريد' : 'Email'}</h3><p>contact@elaffroun.com</p></div>
+                                <div class="contact-card"><i class="fas fa-phone"></i><h3>${state.lang === 'ar' ? 'الهاتف' : 'Téléphone'}</h3><p>+213 XX XX XX XX</p></div>
+                                <div class="contact-card"><i class="fas fa-map-marker-alt"></i><h3>${state.lang === 'ar' ? 'العنوان' : 'Adresse'}</h3><p>${state.lang === 'ar' ? 'العفرون، البليدة' : 'El Affroun, Blida'}</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderFooter() {
+            return `
+                <footer class="footer">
+                    <div class="footer-content">
+                        <div class="footer-section">
+                            <h3>${state.lang === 'ar' ? 'العفرون أونلاين' : 'El Affroun Online'}</h3>
+                            <p>${state.lang === 'ar' ? 'منصة الإعلانات المبوبة الأولى في منطقة العفرون.' : 'La première plateforme de petites annonces à El Affroun.'}</p>
+                            <div class="footer-social">
+                                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#"><i class="fab fa-instagram"></i></a>
+                                <a href="#"><i class="fab fa-twitter"></i></a>
+                            </div>
+                        </div>
+                        <div class="footer-section">
+                            <h3>${state.lang === 'ar' ? 'روابط' : 'Liens'}</h3>
+                            <a href="#" onclick="navigateTo('home'); return false;">${txt('home')}</a>
+                            <a href="#" onclick="navigateTo('ads'); return false;">${txt('allAds')}</a>
+                            <a href="#" onclick="navigateTo('about'); return false;">${txt('aboutUs')}</a>
+                            <a href="#" onclick="navigateTo('privacy'); return false;">${txt('privacy')}</a>
+                        </div>
+                        <div class="footer-section">
+                            <h3>${state.lang === 'ar' ? 'تواصل' : 'Contact'}</h3>
+                            <p><i class="fas fa-envelope"></i> contact@elaffroun.com</p>
+                            <p><i class="fas fa-phone"></i> +213 XX XX XX XX</p>
+                            <p><i class="fas fa-map-marker-alt"></i> ${state.lang === 'ar' ? 'العفرون، البليدة' : 'El Affroun, Blida'}</p>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <p>© 2024 ${state.lang === 'ar' ? 'العفرون أونلاين - جميع الحقوق محفوظة' : 'El Affroun Online - Tous droits réservés'}</p>
+                    </div>
+                </footer>
+            `;
+        }
+        
+        function renderModals() {
+            return `
+                <!-- Auth Modal -->
+                <div class="modal-overlay ${state.showModal === 'auth' ? 'open' : ''}" onclick="if(event.target===this){state.showModal=null;render();}">
+                    <div class="modal">
+                        <button class="modal-close" onclick="state.showModal=null;render();"><i class="fas fa-times"></i></button>
+                        <div class="modal-header">
+                            <h2 class="modal-title"><i class="fas fa-user"></i> ${state.authTab === 'login' ? txt('login') : txt('register')}</h2>
+                        </div>
+                        <div class="modal-body">
+                            <div class="tabs">
+                                <button class="tab ${state.authTab === 'login' ? 'active' : ''}" onclick="state.authTab='login';render();">${txt('login')}</button>
+                                <button class="tab ${state.authTab === 'register' ? 'active' : ''}" onclick="state.authTab='register';render();">${txt('register')}</button>
+                            </div>
+                            <form class="auth-form ${state.authTab === 'login' ? 'active' : ''}" onsubmit="handleLogin(event)">
+                                <div class="form-group"><label><i class="fas fa-envelope"></i> ${txt('email')}</label><input type="email" name="email" required></div>
+                                <div class="form-group"><label><i class="fas fa-lock"></i> ${txt('password')}</label><input type="password" name="password" required></div>
+                                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-sign-in-alt"></i> ${txt('login')}</button>
+                            </form>
+                            <form class="auth-form ${state.authTab === 'register' ? 'active' : ''}" onsubmit="handleRegister(event)">
+                                <div class="form-group"><label><i class="fas fa-user"></i> ${txt('name')}</label><input type="text" name="name" required></div>
+                                <div class="form-group"><label><i class="fas fa-envelope"></i> ${txt('email')}</label><input type="email" name="email" required></div>
+                                <div class="form-group"><label><i class="fas fa-phone"></i> ${txt('phone')}</label><input type="tel" name="phone" required></div>
+                                <div class="form-group"><label><i class="fas fa-lock"></i> ${txt('password')}</label><input type="password" name="password" required minlength="6"></div>
+                                <div class="form-group"><label><i class="fas fa-lock"></i> ${txt('confirmPassword')}</label><input type="password" name="confirmPassword" required minlength="6"></div>
+                                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-user-plus"></i> ${txt('register')}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add Ad Modal -->
+                <div class="modal-overlay ${state.showModal === 'addAd' ? 'open' : ''}" onclick="if(event.target===this){state.showModal=null;render();}">
+                    <div class="modal" style="max-width:600px">
+                        <button class="modal-close" onclick="state.showModal=null;render();"><i class="fas fa-times"></i></button>
+                        <div class="modal-header"><h2 class="modal-title"><i class="fas fa-plus-circle"></i> ${txt('addAd')}</h2></div>
+                        <div class="modal-body">
+                            <form id="add-ad-form" onsubmit="handleAddAd(event)">
+                                <div class="form-row">
+                                    <div class="form-group"><label>${txt('category')} *</label><select name="category" required><option value="">${txt('selectCategory')}</option>${categories.map(c=>`<option value="${c.id}">${c[state.lang]}</option>`).join('')}</select></div>
+                                    <div class="form-group"><label>${txt('city')} *</label><select name="city" required><option value="">${txt('selectCity')}</option>${cities.map(c=>`<option value="${c.id}">${c[state.lang]}</option>`).join('')}</select></div>
+                                </div>
+                                <div class="form-group"><label>${txt('title')} *</label><input type="text" name="title" required maxlength="100"></div>
+                                <div class="form-group"><label>${txt('description')} *</label><textarea name="description" required maxlength="1000"></textarea></div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>${txt('price')} (${txt('da')}) *</label><input type="number" name="price" required min="0"></div>
+                                    <div class="form-group"><label>${txt('phone')} *</label><input type="tel" name="phone" required></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>${txt('image')}</label>
+                                    <div class="image-upload" id="image-upload" onclick="document.getElementById('image-input').click()">
+                                        <input type="file" id="image-input" name="image" accept="image/*" onchange="previewImage(this)">
+                                        <div class="upload-placeholder"><i class="fas fa-cloud-upload-alt"></i><p>${txt('uploadImage')}</p><span>PNG, JPG (Max 5MB)</span></div>
+                                        <img id="image-preview" class="image-preview" src="">
+                                    </div>
+                                </div>
+                                <button type="submit" id="submit-ad-btn" class="btn btn-primary btn-block btn-lg"><i class="fas fa-paper-plane"></i> ${txt('publish')}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filter Modal -->
+                <div class="modal-overlay ${state.showModal === 'filter' ? 'open' : ''}" onclick="if(event.target===this){state.showModal=null;render();}">
+                    <div class="modal">
+                        <button class="modal-close" onclick="state.showModal=null;render();"><i class="fas fa-times"></i></button>
+                        <div class="modal-header"><h2 class="modal-title"><i class="fas fa-sliders-h"></i> ${txt('filter')}</h2></div>
+                        <div class="modal-body">
+                            <div class="filter-section">
+                                <h4><i class="fas fa-th-large"></i> ${txt('category')}</h4>
+                                <div class="filter-options">
+                                    <button class="filter-option ${!state.filters.category ? 'active' : ''}" onclick="state.filters.category='';render();">${txt('allCategories')}</button>
+                                    ${categories.map(c=>`<button class="filter-option ${state.filters.category === c.id ? 'active' : ''}" onclick="state.filters.category='${c.id}';render();">${c[state.lang]}</button>`).join('')}
+                                </div>
+                            </div>
+                            <div class="filter-section">
+                                <h4><i class="fas fa-map-marker-alt"></i> ${txt('city')}</h4>
+                                <div class="filter-options">
+                                    <button class="filter-option ${!state.filters.city ? 'active' : ''}" onclick="state.filters.city='';render();">${txt('allCities')}</button>
+                                    ${cities.map(c=>`<button class="filter-option ${state.filters.city === c.id ? 'active' : ''}" onclick="state.filters.city='${c.id}';render();">${c[state.lang]}</button>`).join('')}
+                                </div>
+                            </div>
+                            <div class="filter-section">
+                                <h4><i class="fas fa-tag"></i> ${txt('priceRange')}</h4>
+                                <div class="price-range">
+                                    <input type="number" placeholder="${txt('minPrice')}" id="filter-min" value="${state.filters.priceMin}" onchange="state.filters.priceMin=this.value">
+                                    <span>-</span>
+                                    <input type="number" placeholder="${txt('maxPrice')}" id="filter-max" value="${state.filters.priceMax}" onchange="state.filters.priceMax=this.value">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="state.showModal=null; navigateTo('ads');"><i class="fas fa-check"></i> ${txt('apply')}</button>
+                            <button class="btn btn-secondary btn-block" style="margin-top:10px" onclick="resetFilters()"><i class="fas fa-undo"></i> ${txt('reset')}</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search Modal -->
+                <div class="modal-overlay ${state.showModal === 'search' ? 'open' : ''}" onclick="if(event.target===this){state.showModal=null;render();}">
+                    <div class="modal">
+                        <button class="modal-close" onclick="state.showModal=null;render();"><i class="fas fa-times"></i></button>
+                        <div class="modal-header"><h2 class="modal-title"><i class="fas fa-search"></i> ${txt('search')}</h2></div>
+                        <div class="modal-body">
                             <div class="form-group">
-                                <label><i class="fas fa-heading"></i> الموضوع</label>
-                                <input type="text" name="subject" required>
+                                <input type="text" id="search-input" placeholder="${state.lang === 'ar' ? 'ابحث عن...' : 'Rechercher...'}" value="${state.filters.search}" onkeypress="if(event.key==='Enter'){state.filters.search=this.value;state.showModal=null;navigateTo('ads');}">
                             </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-comment-alt"></i> الرسالة</label>
-                                <textarea name="message" rows="5" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane"></i> إرسال الرسالة
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Floating Buttons -->
-    <div class="floating-buttons" id="floating-buttons">
-        <button class="float-btn add-btn" id="add-ad-btn" title="نشر إعلان">
-            <i class="fas fa-plus"></i>
-        </button>
-        <button class="float-btn filter-btn" id="filter-btn" title="فلترة">
-            <i class="fas fa-sliders-h"></i>
-        </button>
-        <button class="float-btn search-btn" id="float-search-btn" title="بحث">
-            <i class="fas fa-search"></i>
-        </button>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="Logo">
-                </div>
-                <h3>العفرون أونلاين</h3>
-                <p>منصة الإعلانات المبوبة الأولى في منطقة العفرون والمناطق المجاورة.</p>
-                <div class="footer-social">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>روابط سريعة</h3>
-                <ul class="footer-links">
-                    <li><a href="#" data-page="home"><i class="fas fa-chevron-left"></i> الرئيسية</a></li>
-                    <li><a href="#" data-page="ads"><i class="fas fa-chevron-left"></i> جميع الإعلانات</a></li>
-                    <li><a href="#" data-page="about"><i class="fas fa-chevron-left"></i> من نحن</a></li>
-                    <li><a href="#" data-page="privacy"><i class="fas fa-chevron-left"></i> سياسة الخصوصية</a></li>
-                    <li><a href="#" data-page="contact"><i class="fas fa-chevron-left"></i> اتصل بنا</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>الفئات</h3>
-                <ul class="footer-links" id="footer-categories"></ul>
-            </div>
-            <div class="footer-section">
-                <h3>تواصل معنا</h3>
-                <ul class="footer-contact">
-                    <li><i class="fas fa-envelope"></i> contact@elaffroun-online.com</li>
-                    <li><i class="fas fa-phone"></i> <span dir="ltr">+213 XX XX XX XX</span></li>
-                    <li><i class="fas fa-map-marker-alt"></i> العفرون، البليدة، الجزائر</li>
-                </ul>
-                <div class="footer-app">
-                    <p>حمل التطبيق قريباً</p>
-                    <div class="app-buttons">
-                        <a href="#" class="app-btn"><i class="fab fa-google-play"></i></a>
-                        <a href="#" class="app-btn"><i class="fab fa-apple"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 العفرون أونلاين - جميع الحقوق محفوظة</p>
-            <p>تصميم وتطوير بـ <i class="fas fa-heart" style="color: #ef4444;"></i> في الجزائر</p>
-        </div>
-    </footer>
-
-    <!-- Modals -->
-    <!-- Auth Modal -->
-    <div class="modal-overlay" id="auth-modal">
-        <div class="modal">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <div class="modal-tabs">
-                    <button class="modal-tab active" data-tab="login" data-translate="login">تسجيل الدخول</button>
-                    <button class="modal-tab" data-tab="register" data-translate="register">إنشاء حساب</button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <!-- Login Form -->
-                <form id="login-form" class="auth-form active">
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> <span data-translate="email">البريد الإلكتروني</span></label>
-                        <input type="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> <span data-translate="password">كلمة المرور</span></label>
-                        <div class="password-input">
-                            <input type="password" name="password" required>
-                            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-sign-in-alt"></i> <span data-translate="loginBtn">دخول</span>
-                    </button>
-                    <div class="form-footer">
-                        <a href="#" class="forgot-password">نسيت كلمة المرور؟</a>
-                    </div>
-                </form>
-                <!-- Register Form -->
-                <form id="register-form" class="auth-form">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> <span data-translate="name">الاسم</span></label>
-                        <input type="text" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> <span data-translate="email">البريد الإلكتروني</span></label>
-                        <input type="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-phone"></i> <span data-translate="phone">رقم الهاتف</span></label>
-                        <input type="tel" name="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> <span data-translate="password">كلمة المرور</span></label>
-                        <div class="password-input">
-                            <input type="password" name="password" required minlength="6">
-                            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> <span data-translate="confirmPassword">تأكيد كلمة المرور</span></label>
-                        <div class="password-input">
-                            <input type="password" name="confirmPassword" required minlength="6">
-                            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-user-plus"></i> <span data-translate="registerBtn">تسجيل</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Ad Modal -->
-    <div class="modal-overlay" id="add-ad-modal">
-        <div class="modal modal-lg">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-plus-circle"></i> <span data-translate="addAd">نشر إعلان جديد</span></h2>
-            </div>
-            <div class="modal-body">
-                <form id="add-ad-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-th-large"></i> <span data-translate="category">الفئة</span> *</label>
-                            <select name="category" required>
-                                <option value="" data-translate="selectCategory">اختر الفئة</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-map-marker-alt"></i> <span data-translate="city">المدينة</span> *</label>
-                            <select name="city" required>
-                                <option value="" data-translate="selectCity">اختر المدينة</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-heading"></i> <span data-translate="title">العنوان</span> *</label>
-                        <input type="text" name="title" required maxlength="100">
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-align-left"></i> <span data-translate="description">الوصف</span> *</label>
-                        <textarea name="description" rows="4" required maxlength="1000"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-tag"></i> <span data-translate="price">السعر</span> (دج) *</label>
-                            <input type="number" name="price" required min="0">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> <span data-translate="phone">رقم الهاتف</span> *</label>
-                            <input type="tel" name="phone" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-image"></i> <span data-translate="image">الصورة</span></label>
-                        <div class="image-upload" id="image-upload">
-                            <input type="file" name="image" accept="image/*" id="image-input">
-                            <div class="upload-placeholder">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p data-translate="uploadImage">انقر لرفع صورة</p>
-                                <span>PNG, JPG, JPEG (Max 5MB)</span>
-                            </div>
-                            <img src="" alt="" class="image-preview" id="image-preview">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">
-                        <i class="fas fa-paper-plane"></i> <span data-translate="publish">نشر الإعلان</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filter Modal -->
-    <div class="modal-overlay" id="filter-modal">
-        <div class="modal">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-sliders-h"></i> <span data-translate="filter">فلترة النتائج</span></h2>
-            </div>
-            <div class="modal-body">
-                <div class="filter-section">
-                    <h4><i class="fas fa-th-large"></i> <span data-translate="category">الفئة</span></h4>
-                    <div class="filter-options" id="filter-categories"></div>
-                </div>
-                <div class="filter-section">
-                    <h4><i class="fas fa-map-marker-alt"></i> <span data-translate="city">المدينة</span></h4>
-                    <div class="filter-options" id="filter-cities"></div>
-                </div>
-                <div class="filter-section">
-                    <h4><i class="fas fa-tag"></i> <span data-translate="priceRange">نطاق السعر</span></h4>
-                    <div class="price-range">
-                        <div class="form-group">
-                            <input type="number" id="filter-price-min" placeholder="أدنى سعر" min="0">
-                        </div>
-                        <span class="price-separator">-</span>
-                        <div class="form-group">
-                            <input type="number" id="filter-price-max" placeholder="أقصى سعر" min="0">
+                            <button class="btn btn-primary btn-block" onclick="state.filters.search=document.getElementById('search-input').value;state.showModal=null;navigateTo('ads');"><i class="fas fa-search"></i> ${txt('search')}</button>
                         </div>
                     </div>
                 </div>
-                <div class="filter-actions">
-                    <button class="btn btn-primary btn-block" id="apply-filter">
-                        <i class="fas fa-check"></i> <span data-translate="applyFilter">تطبيق الفلتر</span>
-                    </button>
-                    <button class="btn btn-secondary btn-block" id="reset-filter">
-                        <i class="fas fa-undo"></i> <span data-translate="resetFilter">إعادة تعيين</span>
-                    </button>
+                
+                <!-- Message Modal -->
+                <div class="modal-overlay ${state.showModal === 'message' ? 'open' : ''}" onclick="if(event.target===this){state.showModal=null;render();}">
+                    <div class="modal">
+                        <button class="modal-close" onclick="state.showModal=null;render();"><i class="fas fa-times"></i></button>
+                        <div class="modal-header"><h2 class="modal-title"><i class="fas fa-comment"></i> ${txt('sendMessage')}</h2></div>
+                        <div class="modal-body">
+                            <p style="margin-bottom:10px;color:#666">${state.lang === 'ar' ? 'إلى:' : 'À:'} <strong>${state.selectedAd?.userName || ''}</strong></p>
+                            <p style="margin-bottom:15px;color:#999;font-size:0.9rem">${state.lang === 'ar' ? 'حول:' : 'Concernant:'} ${state.selectedAd?.title || ''}</p>
+                            <form onsubmit="handleSendMessage(event)">
+                                <div class="form-group"><textarea name="message" rows="4" placeholder="${state.lang === 'ar' ? 'اكتب رسالتك...' : 'Écrivez votre message...'}" required></textarea></div>
+                                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-paper-plane"></i> ${txt('sendMessage')}</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Search Modal -->
-    <div class="modal-overlay" id="search-modal">
-        <div class="modal">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-search"></i> <span data-translate="search">بحث</span></h2>
-            </div>
-            <div class="modal-body">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="modal-search-input" placeholder="ابحث عن..." autofocus>
+                
+                <!-- Report Modal -->
+                <div class="modal-overlay ${state.showModal === 'report' ? 'open' : ''}" onclick="if(event.target===this){state.showModal=null;render();}">
+                    <div class="modal">
+                        <button class="modal-close" onclick="state.showModal=null;render();"><i class="fas fa-times"></i></button>
+                        <div class="modal-header"><h2 class="modal-title"><i class="fas fa-flag"></i> ${txt('report')}</h2></div>
+                        <div class="modal-body">
+                            <form onsubmit="handleReport(event)">
+                                <div class="form-group">
+                                    <label>${state.lang === 'ar' ? 'السبب' : 'Raison'}</label>
+                                    <select name="reason" required>
+                                        <option value="">${state.lang === 'ar' ? 'اختر السبب' : 'Choisir la raison'}</option>
+                                        <option value="spam">${state.lang === 'ar' ? 'محتوى مزعج' : 'Spam'}</option>
+                                        <option value="fake">${state.lang === 'ar' ? 'إعلان وهمي' : 'Fausse annonce'}</option>
+                                        <option value="inappropriate">${state.lang === 'ar' ? 'محتوى غير لائق' : 'Contenu inapproprié'}</option>
+                                        <option value="other">${state.lang === 'ar' ? 'سبب آخر' : 'Autre raison'}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>${state.lang === 'ar' ? 'تفاصيل إضافية' : 'Détails supplémentaires'}</label><textarea name="details" rows="3"></textarea></div>
+                                <button type="submit" class="btn btn-danger btn-block"><i class="fas fa-flag"></i> ${txt('report')}</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="search-suggestions" id="search-suggestions"></div>
-                <button class="btn btn-primary btn-block" id="modal-search-btn">
-                    <i class="fas fa-search"></i> <span data-translate="search">بحث</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Message Modal -->
-    <div class="modal-overlay" id="message-modal">
-        <div class="modal">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-comment-alt"></i> <span data-translate="sendMessage">مراسلة البائع</span></h2>
-            </div>
-            <div class="modal-body">
-                <div class="message-to">
-                    <span>إلى:</span>
-                    <strong id="message-to-name">البائع</strong>
-                </div>
-                <div class="message-about">
-                    <span>حول:</span>
-                    <span id="message-about-ad">الإعلان</span>
-                </div>
-                <form id="message-form">
-                    <div class="form-group">
-                        <textarea name="message" rows="4" placeholder="اكتب رسالتك هنا..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-paper-plane"></i> <span data-translate="send">إرسال</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Report Modal -->
-    <div class="modal-overlay" id="report-modal">
-        <div class="modal">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-flag"></i> <span data-translate="reportTitle">الإبلاغ</span></h2>
-            </div>
-            <div class="modal-body">
-                <div class="report-about" id="report-about"></div>
-                <form id="report-form">
-                    <div class="form-group">
-                        <label><i class="fas fa-exclamation-triangle"></i> <span data-translate="reportReason">سبب البلاغ</span></label>
-                        <select name="reason" required>
-                            <option value="">اختر السبب</option>
-                            <option value="spam">محتوى مزعج / سبام</option>
-                            <option value="fake">إعلان وهمي / احتيال</option>
-                            <option value="inappropriate">محتوى غير لائق</option>
-                            <option value="wrong-category">فئة خاطئة</option>
-                            <option value="duplicate">إعلان مكرر</option>
-                            <option value="other">سبب آخر</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-comment-alt"></i> تفاصيل إضافية</label>
-                        <textarea name="details" rows="3" placeholder="اشرح المشكلة..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-danger btn-block">
-                        <i class="fas fa-flag"></i> <span data-translate="reportSubmit">إرسال البلاغ</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Profile Modal -->
-    <div class="modal-overlay" id="edit-profile-modal">
-        <div class="modal">
-            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
-            <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-user-edit"></i> <span data-translate="editProfile">تعديل الملف الشخصي</span></h2>
-            </div>
-            <div class="modal-body">
-                <form id="edit-profile-form">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> <span data-translate="name">الاسم</span></label>
-                        <input type="text" name="name" id="edit-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-phone"></i> <span data-translate="phone">رقم الهاتف</span></label>
-                        <input type="tel" name="phone" id="edit-phone" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-save"></i> حفظ التغييرات
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Image Viewer Modal -->
-    <div class="modal-overlay image-viewer-overlay" id="image-viewer">
-        <button class="image-viewer-close" data-close-modal><i class="fas fa-times"></i></button>
-        <img src="" alt="" class="image-viewer-img" id="image-viewer-img">
-    </div>
-
-    <!-- JavaScript -->
-    <script src="script.js"></script>
+            `;
+        }
+        
+        // Functions
+        function navigateTo(page) {
+            state.page = page;
+            state.showSideMenu = false;
+            window.scrollTo(0, 0);
+            render();
+        }
+        
+        function getFilteredAds() {
+            let ads = [...state.ads];
+            if (state.filters.category) ads = ads.filter(a => a.category === state.filters.category);
+            if (state.filters.city) ads = ads.filter(a => a.city === state.filters.city);
+            if (state.filters.priceMin) ads = ads.filter(a => a.price >= parseInt(state.filters.priceMin));
+            if (state.filters.priceMax) ads = ads.filter(a => a.price <= parseInt(state.filters.priceMax));
+            if (state.filters.search) {
+                const q = state.filters.search.toLowerCase();
+                ads = ads.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
+            }
+            return ads;
+        }
+        
+        function hasFilters() {
+            return state.filters.category || state.filters.city || state.filters.priceMin || state.filters.priceMax || state.filters.search;
+        }
+        
+        function resetFilters() {
+            state.filters = { category: '', city: '', priceMin: '', priceMax: '', search: '' };
+            render();
+        }
+        
+        function openAddAd() {
+            if (!state.user) {
+                showToast(txt('loginRequired'), 'warning');
+                state.showModal = 'auth';
+                render();
+                return;
+            }
+            state.showModal = 'addAd';
+            render();
+        }
+        
+        function openAdDetail(id) {
+            state.selectedAd = state.ads.find(a => a.id === id);
+            state.page = 'adDetail';
+            render();
+        }
+        
+        function openProfile(userId) {
+            db.collection('users').doc(userId).get().then(doc => {
+                state.selectedProfile = { id: userId, ...doc.data() };
+                state.page = 'profile';
+                render();
+            });
+        }
+        
+        function openMessageModal(adId) {
+            if (!state.user) {
+                showToast(txt('loginRequired'), 'warning');
+                state.showModal = 'auth';
+                render();
+                return;
+            }
+            state.selectedAd = state.ads.find(a => a.id === adId);
+            state.showModal = 'message';
+            render();
+        }
+        
+        function openReportModal(adId) {
+            if (!state.user) {
+                showToast(txt('loginRequired'), 'warning');
+                state.showModal = 'auth';
+                render();
+                return;
+            }
+            state.selectedAd = state.ads.find(a => a.id === adId);
+            state.showModal = 'report';
+            render();
+        }
+        
+        function showPhoneNumber(phone) {
+            if (!state.user) {
+                showToast(txt('loginRequired'), 'warning');
+                state.showModal = 'auth';
+                render();
+                return;
+            }
+            showToast(`📞 ${phone}`, 'info');
+        }
+        
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-upload').classList.add('has-image');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="spinner"></span>';
+            btn.disabled = true;
+            
+            try {
+                await auth.signInWithEmailAndPassword(form.email.value, form.password.value);
+                state.showModal = null;
+                showToast(txt('welcome'), 'success');
+                form.reset();
+            } catch (err) {
+                console.error(err);
+                showToast(txt('error'), 'error');
+            } finally {
+                btn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${txt('login')}`;
+                btn.disabled = false;
+            }
+        }
+        
+        async function handleRegister(e) {
+            e.preventDefault();
+            const form = e.target;
+            
+            if (form.password.value !== form.confirmPassword.value) {
+                showToast(txt('passwordMismatch'), 'error');
+                return;
+            }
+            
+            const btn = form.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="spinner"></span>';
+            btn.disabled = true;
+            
+            try {
+                const result = await auth.createUserWithEmailAndPassword(form.email.value, form.password.value);
+                await db.collection('users').doc(result.user.uid).set({
+                    name: form.name.value,
+                    email: form.email.value,
+                    phone: form.phone.value,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                });
+                state.showModal = null;
+                showToast(txt('accountCreated'), 'success');
+                form.reset();
+            } catch (err) {
+                console.error(err);
+                showToast(txt('error'), 'error');
+            } finally {
+                btn.innerHTML = `<i class="fas fa-user-plus"></i> ${txt('register')}`;
+                btn.disabled = false;
+            }
+        }
+        
+        async function handleLogout() {
+            await auth.signOut();
+            state.user = null;
+            state.showSideMenu = false;
+            navigateTo('home');
+            showToast(txt('loggedOut'), 'info');
+        }
+        
+        async function handleAddAd(e) {
+            e.preventDefault();
+            
+            if (!state.user) {
+                showToast(txt('loginRequired'), 'warning');
+                return;
+            }
+            
+            const form = e.target;
+            const category = form.category.value;
+            const city = form.city.value;
+            const title = form.title.value;
+            const description = form.description.value;
+            const price = form.price.value;
+            const phone = form.phone.value;
+            const imageInput = document.getElementById('image-input');
+            
+            if (!category || !city || !title || !description || !price || !phone) {
+                showToast(txt('fillFields'), 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('submit-ad-btn');
+            btn.innerHTML = `<span class="spinner"></span> ${txt('publishing')}`;
+            btn.disabled = true;
+            
+            try {
+                let imageUrl = 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400&h=300&fit=crop';
+                
+                if (imageInput.files && imageInput.files[0]) {
+                    const reader = new FileReader();
+                    imageUrl = await new Promise((resolve, reject) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(imageInput.files[0]);
+                    });
+                }
+                
+                const adData = {
+                    category,
+                    city,
+                    title,
+                    description,
+                    price: parseInt(price),
+                    phone,
+                    imageUrl,
+                    userId: state.user.uid,
+                    userName: state.user.name || state.user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true,
+                    isFeatured: false
+                };
+                
+                console.log('Publishing ad:', adData);
+                
+                const docRef = await db.collection('ads').add(adData);
+                console.log('Ad published with ID:', docRef.id);
+                
+                showToast(txt('adPublished'), 'success');
+                state.showModal = null;
+                form.reset();
+                document.getElementById('image-upload').classList.remove('has-image');
+                document.getElementById('image-preview').src = '';
+                
+                // Reload ads
+                await loadAds();
+                navigateTo('ads');
+                
+            } catch (err) {
+                console.error('Error publishing ad:', err);
+                showToast(txt('error') + ': ' + err.message, 'error');
+            } finally {
+                btn.innerHTML = `<i class="fas fa-paper-plane"></i> ${txt('publish')}`;
+                btn.disabled = false;
+            }
+        }
+        
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            
+            if (!state.user || !state.selectedAd) return;
+            
+            const form = e.target;
+            const message = form.message.value;
+            
+            try {
+                await db.collection('messages').add({
+                    senderId: state.user.uid,
+                    senderName: state.user.name || state.user.email,
+                    receiverId: state.selectedAd.userId,
+                    receiverName: state.selectedAd.userName,
+                    adId: state.selectedAd.id,
+                    adTitle: state.selectedAd.title,
+                    message,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isRead: false
+                });
+                
+                showToast(txt('messageSent'), 'success');
+                state.showModal = null;
+                form.reset();
+                render();
+            } catch (err) {
+                console.error(err);
+                showToast(txt('error'), 'error');
+            }
+        }
+        
+        async function handleReport(e) {
+            e.preventDefault();
+            
+            if (!state.user) return;
+            
+            const form = e.target;
+            
+            try {
+                await db.collection('reports').add({
+                    reporterId: state.user.uid,
+                    reporterName: state.user.name,
+                    adId: state.selectedAd?.id,
+                    adTitle: state.selectedAd?.title,
+                    reason: form.reason.value,
+                    details: form.details?.value || '',
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast(state.lang === 'ar' ? 'تم إرسال البلاغ' : 'Signalement envoyé', 'success');
+                state.showModal = null;
+                form.reset();
+                render();
+            } catch (err) {
+                console.error(err);
+                showToast(txt('error'), 'error');
+            }
+        }
+        
+        async function markAsRead(msgId) {
+            try {
+                await db.collection('messages').doc(msgId).update({ isRead: true });
+                await loadMessages();
+                render();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        
+        // Initialize
+        async function init() {
+            await Promise.all([loadAds(), loadSliders()]);
+            render();
+        }
+        
+        init();
+    </script>
 </body>
 </html>
