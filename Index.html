@@ -3,869 +3,706 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="العفرون أونلاين - منصة الإعلانات المبوبة الأولى في منطقة العفرون">
+    <meta name="keywords" content="إعلانات, بيع, شراء, العفرون, البليدة, الجزائر">
     <title>العفرون أونلاين | El Affroun Online</title>
+    
+    <!-- Favicon -->
     <link rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        *::-webkit-scrollbar { display: none; }
-        * { scrollbar-width: none; -ms-overflow-style: none; }
-        :root { --primary: #1a73e8; --secondary: #ff6d00; --dark: #1a1a2e; --light: #f8f9fa; --success: #10b981; --danger: #ef4444; }
-        body { background: var(--light); min-height: 100vh; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .animate-fade { animation: fadeIn 0.5s ease; }
-        .animate-slide-up { animation: slideUp 0.5s ease; }
-        .animate-pulse { animation: pulse 2s infinite; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        
-        .header { background: linear-gradient(135deg, var(--primary), #1557b0); padding: 10px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.1); }
-        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-        .logo { height: 60px; cursor: pointer; transition: transform 0.3s; }
-        .logo:hover { transform: scale(1.05); }
-        .header-actions { display: flex; align-items: center; gap: 15px; }
-        .header-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; font-size: 14px; }
-        .header-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        .notification-badge { background: var(--secondary); color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-right: 5px; }
-        .lang-switch { background: white; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: bold; }
-        
-        .menu-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center; }
-        .side-menu { position: fixed; top: 0; right: -350px; width: 320px; height: 100%; background: white; z-index: 200; transition: right 0.3s ease; box-shadow: -5px 0 30px rgba(0,0,0,0.2); }
-        .side-menu.open { right: 0; }
-        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 199; opacity: 0; visibility: hidden; transition: all 0.3s; }
-        .side-menu-overlay.open { opacity: 1; visibility: visible; }
-        .side-menu-header { background: linear-gradient(135deg, var(--primary), #1557b0); padding: 30px 20px; color: white; }
-        .side-menu-close { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; }
-        .side-menu-items { padding: 20px 0; }
-        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: #333; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; background: none; width: 100%; text-align: right; font-size: 16px; }
-        .side-menu-item:hover { background: #f0f7ff; color: var(--primary); padding-right: 35px; }
-        .side-menu-item span:first-child { font-size: 22px; width: 35px; text-align: center; }
-        .side-menu-divider { height: 1px; background: #eee; margin: 10px 20px; }
-        
-        .banner-slider { position: relative; width: 100%; height: 400px; overflow: hidden; background: #000; }
-        .banner-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease; }
-        .banner-slide.active { opacity: 1; }
-        .banner-slide img { width: 100%; height: 100%; object-fit: cover; }
-        .banner-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)); display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; text-align: center; padding: 20px; }
-        .banner-title { font-size: 2.5rem; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
-        .banner-desc { font-size: 1.2rem; margin-bottom: 25px; max-width: 600px; }
-        .banner-btn { background: var(--secondary); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; }
-        .banner-btn:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(255,109,0,0.4); }
-        .banner-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 24px; transition: all 0.3s; z-index: 10; }
-        .banner-nav:hover { background: white; transform: translateY(-50%) scale(1.1); }
-        .banner-nav.prev { left: 20px; }
-        .banner-nav.next { right: 20px; }
-        .banner-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
-        .banner-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; transition: all 0.3s; }
-        .banner-dot.active { background: white; transform: scale(1.2); }
-        
-        .categories-section { padding: 40px 20px; background: white; }
-        .section-title { text-align: center; font-size: 1.8rem; color: var(--dark); margin-bottom: 30px; position: relative; }
-        .section-title::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 4px; background: linear-gradient(to right, var(--primary), var(--secondary)); border-radius: 2px; }
-        .categories-slider { position: relative; max-width: 1200px; margin: 0 auto; overflow: hidden; padding: 20px 0; }
-        .categories-track { display: flex; transition: transform 0.5s ease; }
-        .categories-slide { min-width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 0 10px; }
-        .category-card { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 25px 15px; background: #f8f9fa; border-radius: 20px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
-        .category-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(26,115,232,0.15); border-color: var(--primary); background: white; }
-        .category-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.15); transition: all 0.3s; }
-        .category-card:hover .category-img { transform: scale(1.1); border-color: var(--primary); }
-        .category-name { font-weight: 600; color: var(--dark); font-size: 0.95rem; text-align: center; }
-        .cat-nav { position: absolute; top: 50%; transform: translateY(-50%); background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10; transition: all 0.3s; box-shadow: 0 4px 15px rgba(26,115,232,0.3); }
-        .cat-nav:hover { transform: translateY(-50%) scale(1.1); }
-        .cat-nav.prev { left: 0; }
-        .cat-nav.next { right: 0; }
-        .cat-dots { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
-        .cat-dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; border: none; cursor: pointer; transition: all 0.3s; }
-        .cat-dot.active { background: var(--primary); transform: scale(1.3); }
-        
-        .ads-section { padding: 40px 20px; background: #f0f4f8; }
-        .ads-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        .ad-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; position: relative; }
-        .ad-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
-        .ad-card.featured { border: 3px solid #fbbf24; }
-        .ad-featured-badge { position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 5; display: flex; align-items: center; gap: 5px; }
-        .ad-image { width: 100%; height: 220px; object-fit: cover; transition: transform 0.5s; }
-        .ad-card:hover .ad-image { transform: scale(1.05); }
-        .ad-content { padding: 20px; }
-        .ad-category { display: inline-block; background: #e8f4fd; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-size: 12px; margin-bottom: 10px; }
-        .ad-title { font-size: 1.1rem; font-weight: 600; color: var(--dark); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .ad-price { font-size: 1.4rem; font-weight: bold; color: var(--success); margin-bottom: 10px; }
-        .ad-location { color: #666; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .ad-footer { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-top: 1px solid #eee; }
-        .ad-date { color: #999; font-size: 0.85rem; }
-        .ad-actions { display: flex; gap: 10px; }
-        .ad-action-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; transition: transform 0.3s; }
-        .ad-action-btn:hover { transform: scale(1.2); }
-        .ad-action-btn.report { color: #ef4444; }
-        .ad-action-btn.message { color: var(--primary); }
-        
-        .floating-buttons { position: fixed; bottom: 30px; left: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 50; }
-        .float-btn { width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 25px rgba(0,0,0,0.2); transition: all 0.3s; opacity: 0.6; }
-        .float-btn:hover { opacity: 1; transform: scale(1.1); }
-        .float-btn.add { background: linear-gradient(135deg, var(--secondary), #e55a00); color: white; }
-        .float-btn.filter { background: linear-gradient(135deg, var(--primary), #1557b0); color: white; }
-        .float-btn.search { background: white; color: var(--primary); border: 2px solid var(--primary); }
-        
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-overlay.open { display: flex; }
-        .modal { background: white; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
-        .modal-header { padding: 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-size: 1.4rem; font-weight: bold; color: var(--dark); }
-        .modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; transition: color 0.3s; }
-        .modal-close:hover { color: #333; }
-        .modal-body { padding: 25px; }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); }
-        .form-input, .form-select, .form-textarea { width: 100%; padding: 14px 18px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1rem; transition: all 0.3s; }
-        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
-        .form-textarea { resize: vertical; min-height: 120px; }
-        .form-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), #1557b0); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; }
-        .form-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,115,232,0.3); }
-        .form-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-        .form-btn.secondary { background: white; color: var(--primary); border: 2px solid var(--primary); }
-        .form-btn.secondary:hover { background: #f0f7ff; }
-        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: 600; }
-        .tab.active { border-bottom-color: var(--primary); color: var(--primary); }
-        .tab:hover { background: #f5f5f5; }
-        
-        .image-upload { border: 3px dashed #ddd; border-radius: 16px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
-        .image-upload:hover { border-color: var(--primary); background: #f0f7ff; }
-        .image-upload input { display: none; }
-        .image-upload-icon { font-size: 50px; margin-bottom: 15px; }
-        .image-preview { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; }
-        
-        .ad-detail { max-width: 1000px; margin: 0 auto; padding: 30px 20px; animation: fadeIn 0.5s ease; }
-        .ad-detail-back { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none; margin-bottom: 20px; cursor: pointer; font-weight: 600; padding: 10px 20px; background: #e8f4fd; border-radius: 25px; border: none; transition: all 0.3s; }
-        .ad-detail-back:hover { background: var(--primary); color: white; }
-        .ad-detail-image { width: 100%; height: 450px; object-fit: cover; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
-        .ad-detail-content { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 5px 30px rgba(0,0,0,0.08); }
-        .ad-detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-        .ad-detail-title { font-size: 1.8rem; font-weight: bold; color: var(--dark); }
-        .ad-detail-price { font-size: 2rem; font-weight: bold; color: var(--success); }
-        .ad-detail-meta { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee; }
-        .ad-detail-meta-item { display: flex; align-items: center; gap: 8px; color: #666; }
-        .ad-detail-desc { line-height: 1.8; color: #444; margin-bottom: 30px; white-space: pre-line; }
-        .ad-detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .ad-detail-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 18px 25px; border-radius: 14px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; border: none; }
-        .ad-detail-btn:hover { transform: translateY(-3px); }
-        .ad-detail-btn.phone { background: linear-gradient(135deg, var(--success), #059669); color: white; }
-        .ad-detail-btn.phone:hover { box-shadow: 0 10px 30px rgba(16,185,129,0.4); }
-        .ad-detail-btn.message { background: linear-gradient(135deg, var(--primary), #1557b0); color: white; }
-        .ad-detail-btn.message:hover { box-shadow: 0 10px 30px rgba(26,115,232,0.4); }
-        .ad-detail-btn.report { background: #fee2e2; color: var(--danger); grid-column: span 2; border: 2px solid #fecaca; }
-        .ad-detail-btn.report:hover { background: var(--danger); color: white; }
-        .ad-seller { display: flex; align-items: center; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 16px; margin-top: 25px; cursor: pointer; transition: all 0.3s; }
-        .ad-seller:hover { background: #e8f4fd; }
-        .ad-seller-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold; }
-        .ad-seller-info h4 { font-size: 1.1rem; color: var(--dark); margin-bottom: 5px; }
-        .ad-seller-info p { color: #666; font-size: 0.9rem; }
-        
-        .profile-page { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
-        .profile-header { background: linear-gradient(135deg, var(--primary), #1557b0); border-radius: 20px; padding: 40px; color: white; text-align: center; margin-bottom: 30px; }
-        .profile-avatar { width: 120px; height: 120px; border-radius: 50%; background: white; color: var(--primary); font-size: 3rem; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .profile-name { font-size: 1.8rem; margin-bottom: 10px; }
-        .profile-stats { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
-        .profile-stat { text-align: center; }
-        .profile-stat-value { font-size: 1.5rem; font-weight: bold; }
-        .profile-stat-label { font-size: 0.9rem; opacity: 0.9; }
-        
-        .messages-page { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
-        .messages-container { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 5px 30px rgba(0,0,0,0.08); }
-        .messages-tabs { display: flex; border-bottom: 2px solid #eee; }
-        .messages-tab { flex: 1; padding: 20px; text-align: center; cursor: pointer; font-weight: 600; transition: all 0.3s; position: relative; }
-        .messages-tab.active { color: var(--primary); background: #f0f7ff; }
-        .messages-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: var(--primary); }
-        .messages-list { max-height: 500px; overflow-y: auto; }
-        .message-item { display: flex; gap: 15px; padding: 20px; border-bottom: 1px solid #eee; cursor: pointer; transition: all 0.3s; }
-        .message-item:hover { background: #f8f9fa; }
-        .message-item.unread { background: #f0f7ff; }
-        .message-avatar { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; }
-        .message-content { flex: 1; min-width: 0; }
-        .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .message-sender { font-weight: 600; color: var(--dark); }
-        .message-time { font-size: 0.8rem; color: #999; }
-        .message-text { color: #666; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .message-unread-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; flex-shrink: 0; }
-        .chat-container { display: flex; flex-direction: column; height: 500px; }
-        .chat-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; }
-        .chat-back { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .chat-message { max-width: 70%; padding: 15px 20px; border-radius: 20px; }
-        .chat-message.sent { background: var(--primary); color: white; align-self: flex-start; border-bottom-left-radius: 5px; }
-        .chat-message.received { background: #f0f0f0; color: var(--dark); align-self: flex-end; border-bottom-right-radius: 5px; }
-        .chat-input-container { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; }
-        .chat-input { flex: 1; padding: 15px 20px; border: 2px solid #eee; border-radius: 25px; font-size: 1rem; }
-        .chat-input:focus { outline: none; border-color: var(--primary); }
-        .chat-send { background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 20px; transition: all 0.3s; }
-        .chat-send:hover { background: #1557b0; transform: scale(1.05); }
-        
-        .info-page { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        .info-page h1 { font-size: 2rem; color: var(--dark); margin-bottom: 30px; text-align: center; }
-        .info-page h2 { font-size: 1.3rem; color: var(--primary); margin: 25px 0 15px; }
-        .info-page p { line-height: 1.8; color: #555; margin-bottom: 15px; }
-        .info-page ul { margin: 15px 0; padding-right: 30px; }
-        .info-page li { margin-bottom: 10px; color: #555; }
-        .contact-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
-        .contact-card { background: white; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: all 0.3s; }
-        .contact-card:hover { transform: translateY(-5px); }
-        .contact-card-icon { font-size: 40px; margin-bottom: 15px; }
-        .contact-card h3 { color: var(--dark); margin-bottom: 10px; }
-        .contact-card p { color: #666; }
-        
-        .filter-section { margin-bottom: 25px; }
-        .filter-section h4 { font-size: 1rem; font-weight: 600; margin-bottom: 15px; color: var(--dark); }
-        .filter-options { display: flex; flex-wrap: wrap; gap: 10px; }
-        .filter-option { padding: 10px 18px; border: 2px solid #e0e0e0; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; background: white; }
-        .filter-option:hover { border-color: var(--primary); }
-        .filter-option.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .price-range { display: flex; gap: 15px; align-items: center; }
-        .price-range input { flex: 1; }
-        
-        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 400; display: flex; flex-direction: column; gap: 10px; }
-        .toast { padding: 16px 25px; border-radius: 12px; color: white; display: flex; align-items: center; gap: 12px; animation: slideUp 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-weight: 500; }
-        .toast.success { background: linear-gradient(135deg, var(--success), #059669); }
-        .toast.error { background: linear-gradient(135deg, var(--danger), #dc2626); }
-        .toast.info { background: linear-gradient(135deg, var(--primary), #1557b0); }
-        .toast-icon { font-size: 22px; }
-        .toast-close { background: none; border: none; color: white; margin-right: auto; cursor: pointer; font-size: 20px; opacity: 0.8; }
-        .toast-close:hover { opacity: 1; }
-        
-        .footer { background: var(--dark); color: white; padding: 50px 20px 30px; margin-top: 50px; }
-        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
-        .footer-section h3 { font-size: 1.2rem; margin-bottom: 20px; color: #fbbf24; }
-        .footer-section p, .footer-section a { color: #aaa; line-height: 2; text-decoration: none; display: block; transition: color 0.3s; }
-        .footer-section a:hover { color: white; }
-        .footer-social { display: flex; gap: 15px; margin-top: 15px; }
-        .footer-social a { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.3s; }
-        .footer-social a:hover { background: var(--primary); transform: translateY(-3px); }
-        .footer-bottom { text-align: center; padding-top: 30px; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: #888; }
-        
-        @media (max-width: 768px) {
-            .header-content { padding: 10px; }
-            .logo { height: 45px; }
-            .header-btn span:not(.notification-badge) { display: none; }
-            .banner-slider { height: 300px; }
-            .banner-title { font-size: 1.5rem; }
-            .banner-desc { font-size: 1rem; }
-            .categories-slide { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .category-img { width: 70px; height: 70px; }
-            .ads-grid { grid-template-columns: 1fr; }
-            .ad-detail-actions { grid-template-columns: 1fr; }
-            .ad-detail-btn.report { grid-column: span 1; }
-            .floating-buttons { bottom: 20px; left: 20px; }
-            .float-btn { width: 55px; height: 55px; font-size: 22px; }
-            .modal { max-width: 95%; }
-            .side-menu { width: 85%; max-width: 320px; }
-        }
-        
-        .admin-container { display: flex; min-height: 100vh; direction: rtl; }
-        .admin-sidebar { width: 280px; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); color: white; position: fixed; height: 100vh; overflow-y: auto; transition: all 0.3s; z-index: 100; }
-        .admin-sidebar-header { padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 15px; }
-        .admin-sidebar-logo { font-size: 1.5rem; font-weight: bold; color: #fbbf24; }
-        .admin-nav { padding: 20px 0; }
-        .admin-nav-item { display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: #94a3b8; cursor: pointer; transition: all 0.3s; border: none; background: none; width: 100%; text-align: right; font-size: 1rem; }
-        .admin-nav-item:hover { background: rgba(255,255,255,0.05); color: white; padding-right: 30px; }
-        .admin-nav-item.active { background: rgba(26,115,232,0.2); color: #60a5fa; border-right: 4px solid #60a5fa; }
-        .admin-nav-item span:first-child { font-size: 22px; width: 30px; text-align: center; }
-        .admin-main { flex: 1; margin-right: 280px; background: #f1f5f9; min-height: 100vh; transition: all 0.3s; }
-        .admin-header { background: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
-        .admin-content { padding: 30px; }
-        .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 30px; }
-        .admin-stat-card { background: white; border-radius: 16px; padding: 25px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s; }
-        .admin-stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .admin-stat-icon { width: 65px; height: 65px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-        .admin-stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-        .admin-stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
-        .admin-stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .admin-stat-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .admin-stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .admin-stat-info h3 { font-size: 1.8rem; color: #1e293b; margin-bottom: 5px; }
-        .admin-stat-info p { color: #64748b; font-size: 0.95rem; }
-        .admin-card { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
-        .admin-card-title { font-size: 1.2rem; font-weight: 600; color: #1e293b; }
-        .admin-table { width: 100%; border-collapse: collapse; }
-        .admin-table th { text-align: right; padding: 15px; background: #f8fafc; color: #64748b; font-weight: 600; font-size: 0.9rem; }
-        .admin-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; color: #334155; }
-        .admin-table tr:hover td { background: #f8fafc; }
-        .admin-table-img { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; }
-        .admin-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
-        .admin-badge.success { background: #d1fae5; color: #059669; }
-        .admin-badge.warning { background: #fef3c7; color: #d97706; }
-        .admin-badge.danger { background: #fee2e2; color: #dc2626; }
-        .admin-badge.info { background: #dbeafe; color: #2563eb; }
-        .admin-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
-        .admin-btn.primary { background: #3b82f6; color: white; }
-        .admin-btn.primary:hover { background: #2563eb; }
-        .admin-btn.success { background: #10b981; color: white; }
-        .admin-btn.success:hover { background: #059669; }
-        .admin-btn.danger { background: #ef4444; color: white; }
-        .admin-btn.danger:hover { background: #dc2626; }
-        .admin-btn.warning { background: #f59e0b; color: white; }
-        .admin-btn.warning:hover { background: #d97706; }
-        .admin-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; }
-        .admin-login-card { background: white; border-radius: 20px; padding: 50px 40px; width: 100%; max-width: 420px; text-align: center; animation: slideUp 0.5s ease; }
-        .admin-login-logo { font-size: 60px; margin-bottom: 20px; }
-        .admin-login-title { font-size: 1.8rem; color: #1e293b; margin-bottom: 10px; }
-        .admin-login-subtitle { color: #64748b; margin-bottom: 30px; }
-        .admin-empty { text-align: center; padding: 60px 20px; color: #94a3b8; }
-        .admin-empty-icon { font-size: 60px; margin-bottom: 20px; opacity: 0.5; }
-        
-        @media (max-width: 768px) {
-            .admin-sidebar { width: 100%; height: auto; position: relative; }
-            .admin-main { margin-right: 0; }
-            .admin-stats { grid-template-columns: 1fr; }
-            .admin-table { font-size: 0.85rem; }
-            .admin-table th, .admin-table td { padding: 10px 8px; }
-        }
-    </style>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app"></div>
-    
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAaXp-gUOQ_G2s-kM8JhaqW8TJcJ4Nqcuo",
-            authDomain: "comondi-fae4b.firebaseapp.com",
-            projectId: "comondi-fae4b",
-            storageBucket: "comondi-fae4b.firebasestorage.app",
-            messagingSenderId: "932777870241",
-            appId: "1:932777870241:web:78b0cf3a3cf14046be01e0",
-            measurementId: "G-M09RX0V18S"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        
-        // App State
-        const state = {
-            lang: localStorage.getItem('lang') || 'ar',
-            user: null,
-            isAdmin: false,
-            currentPage: window.location.hash === '#admin' ? 'admin-login' : 'home',
-            ads: [],
-            sliders: [],
-            messages: [],
-            reports: [],
-            users: [],
-            selectedAd: null,
-            selectedProfile: null,
-            selectedChat: null,
-            bannerIndex: 0,
-            categoryIndex: 0,
-            filterCategory: '',
-            filterCity: '',
-            filterPriceMin: '',
-            filterPriceMax: '',
-            searchQuery: '',
-            showSideMenu: false,
-            showAuthModal: false,
-            showAddAdModal: false,
-            showFilterModal: false,
-            showSearchModal: false,
-            showReportModal: false,
-            showMessageModal: false,
-            showEditProfileModal: false,
-            authTab: 'login',
-            messagesTab: 'inbox',
-            adminPage: 'dashboard',
-            toasts: []
-        };
-        
-        // Translations
-        const t = {
-            ar: {
-                home: 'الرئيسية', login: 'تسجيل الدخول', register: 'إنشاء حساب', logout: 'تسجيل الخروج',
-                myAds: 'إعلاناتي', messages: 'الرسائل', profile: 'الملف الشخصي', editProfile: 'تعديل الملف',
-                allAds: 'جميع الإعلانات', categories: 'الفئات', addAd: 'نشر إعلان', filter: 'فلترة',
-                search: 'بحث', searchPlaceholder: 'ابحث عن...', category: 'الفئة', title: 'العنوان',
-                description: 'الوصف', price: 'السعر', city: 'المدينة', phone: 'رقم الهاتف', image: 'الصورة',
-                publish: 'نشر الإعلان', showPhone: 'إظهار الهاتف', sendMessage: 'مراسلة البائع',
-                report: 'الإبلاغ عن هذا الإعلان', reportTitle: 'الإبلاغ', reportReason: 'سبب الإبلاغ',
-                reportSubmit: 'إرسال البلاغ', back: 'رجوع', email: 'البريد الإلكتروني', password: 'كلمة المرور',
-                confirmPassword: 'تأكيد كلمة المرور', name: 'الاسم', loginBtn: 'دخول', registerBtn: 'تسجيل',
-                noAccount: 'ليس لديك حساب؟', hasAccount: 'لديك حساب؟', aboutUs: 'من نحن',
-                privacy: 'سياسة الخصوصية', contact: 'اتصل بنا', reportProblem: 'الإبلاغ عن مشكل',
-                selectCategory: 'اختر الفئة', selectCity: 'اختر المدينة', allCategories: 'جميع الفئات',
-                allCities: 'جميع المدن', priceRange: 'نطاق السعر', minPrice: 'أدنى سعر', maxPrice: 'أقصى سعر',
-                applyFilter: 'تطبيق', resetFilter: 'إعادة تعيين', featuredAds: 'إعلانات مميزة',
-                latestAds: 'أحدث الإعلانات', viewAll: 'عرض الكل', seller: 'البائع', inbox: 'الواردة',
-                archive: 'الأرشيف', noMessages: 'لا توجد رسائل', typeMessage: 'اكتب رسالتك...', send: 'إرسال',
-                da: 'دج', browseAds: 'تصفح الإعلانات', uploadImage: 'انقر لرفع صورة',
-                requiredLogin: 'يجب تسجيل الدخول أولاً', adPublished: 'تم نشر الإعلان بنجاح',
-                messageSent: 'تم إرسال الرسالة', reportSent: 'تم إرسال البلاغ',
-                profileUpdated: 'تم تحديث الملف', errorOccurred: 'حدث خطأ', fillAllFields: 'يرجى ملء جميع الحقول'
-            },
-            fr: {
-                home: 'Accueil', login: 'Connexion', register: 'Inscription', logout: 'Déconnexion',
-                myAds: 'Mes annonces', messages: 'Messages', profile: 'Profil', editProfile: 'Modifier',
-                allAds: 'Toutes les annonces', categories: 'Catégories', addAd: 'Publier', filter: 'Filtrer',
-                search: 'Rechercher', searchPlaceholder: 'Rechercher...', category: 'Catégorie', title: 'Titre',
-                description: 'Description', price: 'Prix', city: 'Ville', phone: 'Téléphone', image: 'Image',
-                publish: 'Publier', showPhone: 'Afficher le téléphone', sendMessage: 'Contacter',
-                report: 'Signaler', reportTitle: 'Signalement', reportReason: 'Raison', reportSubmit: 'Envoyer',
-                back: 'Retour', email: 'Email', password: 'Mot de passe', confirmPassword: 'Confirmer',
-                name: 'Nom', loginBtn: 'Connexion', registerBtn: 'S\'inscrire', noAccount: 'Pas de compte?',
-                hasAccount: 'Déjà inscrit?', aboutUs: 'À propos', privacy: 'Confidentialité', contact: 'Contact',
-                reportProblem: 'Signaler un problème', selectCategory: 'Choisir', selectCity: 'Ville',
-                allCategories: 'Toutes', allCities: 'Toutes', priceRange: 'Prix', minPrice: 'Min', maxPrice: 'Max',
-                applyFilter: 'Appliquer', resetFilter: 'Réinitialiser', featuredAds: 'Annonces vedettes',
-                latestAds: 'Dernières annonces', viewAll: 'Voir tout', seller: 'Vendeur', inbox: 'Boîte de réception',
-                archive: 'Archives', noMessages: 'Aucun message', typeMessage: 'Message...', send: 'Envoyer',
-                da: 'DA', browseAds: 'Parcourir', uploadImage: 'Télécharger', requiredLogin: 'Connexion requise',
-                adPublished: 'Publié', messageSent: 'Envoyé', reportSent: 'Signalé', profileUpdated: 'Mis à jour',
-                errorOccurred: 'Erreur', fillAllFields: 'Remplir tous les champs'
-            }
-        };
-        
-        // Categories & Cities
-        const categories = [
-            { id: 'cars', name: { ar: 'سيارات ومركبات', fr: 'Véhicules' }, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200' },
-            { id: 'realestate', name: { ar: 'عقارات', fr: 'Immobilier' }, img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200' },
-            { id: 'phones', name: { ar: 'هواتف وإلكترونيات', fr: 'Téléphones' }, img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200' },
-            { id: 'jobs', name: { ar: 'فرص عمل', fr: 'Emploi' }, img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200' },
-            { id: 'services', name: { ar: 'خدمات', fr: 'Services' }, img: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=200' },
-            { id: 'appliances', name: { ar: 'أجهزة كهرومنزلية', fr: 'Électroménager' }, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200' },
-            { id: 'fashion', name: { ar: 'ألبسة وموضة', fr: 'Mode' }, img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200' },
-            { id: 'equipment', name: { ar: 'معدات مهنية', fr: 'Équipement' }, img: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=200' },
-            { id: 'sweets', name: { ar: 'حلويات', fr: 'Pâtisseries' }, img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=200' },
-            { id: 'sewing', name: { ar: 'خياطة', fr: 'Couture' }, img: 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=200' },
-            { id: 'beauty', name: { ar: 'تجميل وعناية', fr: 'Beauté' }, img: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=200' },
-            { id: 'other', name: { ar: 'أخرى', fr: 'Autres' }, img: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=200' }
-        ];
-        
-        const cities = [
-            { id: 'elaffroun', name: { ar: 'العفرون', fr: 'El Affroun' } },
-            { id: 'mouzaia', name: { ar: 'موزاية', fr: 'Mouzaia' } },
-            { id: 'chiffa', name: { ar: 'شفة', fr: 'Chiffa' } },
-            { id: 'ouedjer', name: { ar: 'واد جر', fr: 'Oued Jer' } },
-            { id: 'ahmerlaain', name: { ar: 'أحمر العين', fr: 'Ahmer El Ain' } },
-            { id: 'hatatba', name: { ar: 'حطاطبة', fr: 'Hatatba' } }
-        ];
-        
-        const defaultSliders = [
-            { title: { ar: '🎉 عروض خاصة على الهواتف', fr: '🎉 Offres spéciales' }, desc: { ar: 'خصومات تصل إلى 30%', fr: 'Réductions jusqu\'à 30%' }, img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200' },
-            { title: { ar: '🏠 عقارات للبيع والإيجار', fr: '🏠 Immobilier' }, desc: { ar: 'أفضل العروض العقارية', fr: 'Les meilleures offres' }, img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200' },
-            { title: { ar: '🚗 سيارات بأسعار مناسبة', fr: '🚗 Voitures' }, desc: { ar: 'سيارات جديدة ومستعملة', fr: 'Neuves et occasion' }, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1200' },
-            { title: { ar: '👕 موضة وأزياء', fr: '👕 Mode' }, desc: { ar: 'أحدث صيحات الموضة', fr: 'Dernières tendances' }, img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200' }
-        ];
-        
-        // Helper Functions
-        const getText = (key) => t[state.lang][key] || key;
-        const getCategoryName = (id) => categories.find(c => c.id === id)?.name[state.lang] || id;
-        const getCityName = (id) => cities.find(c => c.id === id)?.name[state.lang] || id;
-        const formatDate = (ts) => ts?.toDate ? ts.toDate().toLocaleDateString(state.lang === 'ar' ? 'ar-DZ' : 'fr-FR') : '';
-        const formatPrice = (p) => `${parseInt(p).toLocaleString()} ${getText('da')}`;
-        
-        const showToast = (message, type = 'info') => {
-            const id = Date.now();
-            state.toasts.push({ id, message, type });
-            render();
-            setTimeout(() => { state.toasts = state.toasts.filter(t => t.id !== id); render(); }, 3000);
-        };
-        
-        // Auth
-        const handleAuth = async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            try {
-                if (state.authTab === 'login') {
-                    await auth.signInWithEmailAndPassword(form.email.value, form.password.value);
-                } else {
-                    if (form.password.value !== form.confirmPassword.value) {
-                        showToast('كلمات المرور غير متطابقة', 'error');
-                        return;
-                    }
-                    const result = await auth.createUserWithEmailAndPassword(form.email.value, form.password.value);
-                    await db.collection('users').doc(result.user.uid).set({
-                        name: form.name.value, email: form.email.value, phone: form.phone.value,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(), isActive: true
-                    });
-                }
-                state.showAuthModal = false;
-                showToast('تم بنجاح', 'success');
-                render();
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        };
-        
-        const handleLogout = async () => {
-            await auth.signOut();
-            state.user = null;
-            state.currentPage = 'home';
-            render();
-        };
-        
-        // Add Ad
-        const handleAddAd = async (e) => {
-            e.preventDefault();
-            if (!state.user) { state.showAuthModal = true; state.showAddAdModal = false; render(); return; }
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="Logo">
+            </div>
+            <div class="loading-spinner"></div>
+            <p class="loading-text">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Side Menu Overlay -->
+    <div id="side-menu-overlay" class="side-menu-overlay"></div>
+
+    <!-- Side Menu -->
+    <nav id="side-menu" class="side-menu">
+        <button class="side-menu-close" id="close-menu">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="side-menu-header">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="Logo" class="side-menu-logo">
+            <div class="side-menu-brand">
+                <span class="brand-ar">العفرون أونلاين</span>
+                <span class="brand-fr">El Affroun Online</span>
+            </div>
+        </div>
+        <div class="side-menu-user" id="menu-user-section" style="display: none;">
+            <div class="menu-user-avatar" id="menu-user-avatar">U</div>
+            <div class="menu-user-info">
+                <span class="menu-user-name" id="menu-user-name">المستخدم</span>
+                <span class="menu-user-email" id="menu-user-email">email@example.com</span>
+            </div>
+        </div>
+        <ul class="side-menu-items">
+            <li><a href="#" class="side-menu-item active" data-page="home"><i class="fas fa-home"></i><span data-translate="home">الرئيسية</span></a></li>
+            <li><a href="#" class="side-menu-item" data-page="ads"><i class="fas fa-th-large"></i><span data-translate="allAds">جميع الإعلانات</span></a></li>
+            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item" data-page="messages"><i class="fas fa-comments"></i><span data-translate="messages">الرسائل</span><span class="menu-badge" id="menu-messages-badge" style="display: none;">0</span></a></li>
+            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item" data-page="my-ads"><i class="fas fa-bullhorn"></i><span data-translate="myAds">إعلاناتي</span></a></li>
+            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item" data-page="profile"><i class="fas fa-user-edit"></i><span data-translate="editProfile">تعديل الملف</span></a></li>
+            <li class="side-menu-divider"></li>
+            <li><a href="#" class="side-menu-item" data-page="about"><i class="fas fa-info-circle"></i><span data-translate="aboutUs">من نحن</span></a></li>
+            <li><a href="#" class="side-menu-item" data-page="privacy"><i class="fas fa-shield-alt"></i><span data-translate="privacy">سياسة الخصوصية</span></a></li>
+            <li><a href="#" class="side-menu-item" data-page="contact"><i class="fas fa-envelope"></i><span data-translate="contact">اتصل بنا</span></a></li>
+            <li><a href="#" class="side-menu-item" id="report-problem-btn"><i class="fas fa-flag"></i><span data-translate="reportProblem">الإبلاغ عن مشكل</span></a></li>
+            <li class="side-menu-divider auth-required" style="display: none;"></li>
+            <li class="auth-required" style="display: none;"><a href="#" class="side-menu-item logout-btn" id="menu-logout"><i class="fas fa-sign-out-alt"></i><span data-translate="logout">تسجيل الخروج</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-content">
+            <div class="header-right">
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="#" class="logo" data-page="home">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="العفرون أونلاين">
+                </a>
+            </div>
             
-            const form = e.target;
-            const { category, title, description, price, city, phone, image } = form;
-            
-            if (!category.value || !title.value || !description.value || !price.value || !city.value || !phone.value) {
-                showToast(getText('fillAllFields'), 'error');
-                return;
-            }
-            
-            let imageUrl = 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400';
-            if (image.files?.[0]) {
-                imageUrl = await new Promise(r => { const fr = new FileReader(); fr.onload = e => r(e.target.result); fr.readAsDataURL(image.files[0]); });
-            }
-            
-            await db.collection('ads').add({
-                category: category.value, title: title.value, description: description.value,
-                price: parseInt(price.value), city: city.value, phone: phone.value, imageUrl,
-                userId: state.user.uid, userName: state.user.name || state.user.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(), isActive: true, isFeatured: false
-            });
-            
-            showToast(getText('adPublished'), 'success');
-            state.showAddAdModal = false;
-            loadAds();
-        };
-        
-        // Messages & Reports
-        const handleSendMessage = async (e) => {
-            e.preventDefault();
-            if (!state.user) return;
-            await db.collection('messages').add({
-                senderId: state.user.uid, senderName: state.user.name || state.user.email,
-                receiverId: state.selectedAd.userId, receiverName: state.selectedAd.userName,
-                adId: state.selectedAd.id, adTitle: state.selectedAd.title,
-                message: e.target.message.value,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(), isRead: false
-            });
-            showToast(getText('messageSent'), 'success');
-            state.showMessageModal = false;
-            render();
-        };
-        
-        const handleReport = async (e) => {
-            e.preventDefault();
-            if (!state.user) return;
-            await db.collection('reports').add({
-                reporterId: state.user.uid, reporterName: state.user.name,
-                adId: state.selectedAd?.id, adTitle: state.selectedAd?.title || 'بلاغ عام',
-                reason: e.target.reason.value, status: 'pending',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            showToast(getText('reportSent'), 'success');
-            state.showReportModal = false;
-            state.selectedAd = null;
-            render();
-        };
-        
-        const handleUpdateProfile = async (e) => {
-            e.preventDefault();
-            await db.collection('users').doc(state.user.uid).update({ name: e.target.name.value, phone: e.target.phone.value });
-            state.user.name = e.target.name.value;
-            state.user.phone = e.target.phone.value;
-            showToast(getText('profileUpdated'), 'success');
-            state.showEditProfileModal = false;
-            render();
-        };
-        
-        // Load Data
-        const loadAds = async () => {
-            const snap = await db.collection('ads').where('isActive', '==', true).orderBy('createdAt', 'desc').get();
-            state.ads = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            render();
-        };
-        
-        const loadSliders = async () => {
-            const snap = await db.collection('sliders').where('isActive', '==', true).get();
-            state.sliders = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            render();
-        };
-        
-        const loadMessages = async () => {
-            if (!state.user) return;
-            const [sent, received] = await Promise.all([
-                db.collection('messages').where('senderId', '==', state.user.uid).get(),
-                db.collection('messages').where('receiverId', '==', state.user.uid).get()
-            ]);
-            state.messages = [...sent.docs, ...received.docs].map(d => ({ id: d.id, ...d.data() }));
-            render();
-        };
-        
-        // Admin
-        const loadAdminData = async () => {
-            const [ads, users, reports, messages, sliders] = await Promise.all([
-                db.collection('ads').get(),
-                db.collection('users').get(),
-                db.collection('reports').get(),
-                db.collection('messages').get(),
-                db.collection('sliders').get()
-            ]);
-            state.ads = ads.docs.map(d => ({ id: d.id, ...d.data() }));
-            state.users = users.docs.map(d => ({ id: d.id, ...d.data() }));
-            state.reports = reports.docs.map(d => ({ id: d.id, ...d.data() }));
-            state.messages = messages.docs.map(d => ({ id: d.id, ...d.data() }));
-            state.sliders = sliders.docs.map(d => ({ id: d.id, ...d.data() }));
-            render();
-        };
-        
-        const handleAdminLogin = (e) => {
-            e.preventDefault();
-            if (e.target.username.value === 'admin' && e.target.password.value === 'abobob123') {
-                state.isAdmin = true;
-                state.currentPage = 'admin-dashboard';
-                loadAdminData();
-                showToast('مرحباً بك', 'success');
-            } else {
-                showToast('بيانات خاطئة', 'error');
-            }
-        };
-        
-        const toggleFeatured = async (id, val) => { await db.collection('ads').doc(id).update({ isFeatured: !val }); loadAdminData(); };
-        const toggleActive = async (id, val) => { await db.collection('ads').doc(id).update({ isActive: !val }); loadAdminData(); };
-        const deleteAd = async (id) => { if (confirm('حذف؟')) { await db.collection('ads').doc(id).delete(); loadAdminData(); } };
-        const deleteUser = async (id) => { if (confirm('حذف؟')) { await db.collection('users').doc(id).delete(); loadAdminData(); } };
-        const updateReport = async (id, status) => { await db.collection('reports').doc(id).update({ status }); loadAdminData(); };
-        
-        const handleAddSlider = async (e) => {
-            e.preventDefault();
-            const f = e.target;
-            await db.collection('sliders').add({
-                title: f.title.value, description: f.description.value, imageUrl: f.imageUrl.value,
-                link: f.link.value, isActive: true, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            f.reset();
-            loadAdminData();
-            showToast('تمت الإضافة', 'success');
-        };
-        
-        const deleteSlider = async (id) => { await db.collection('sliders').doc(id).delete(); loadAdminData(); };
-        
-        // Filter
-        const getFilteredAds = () => {
-            let ads = state.ads.filter(a => a.isActive);
-            if (state.filterCategory) ads = ads.filter(a => a.category === state.filterCategory);
-            if (state.filterCity) ads = ads.filter(a => a.city === state.filterCity);
-            if (state.filterPriceMin) ads = ads.filter(a => a.price >= parseInt(state.filterPriceMin));
-            if (state.filterPriceMax) ads = ads.filter(a => a.price <= parseInt(state.filterPriceMax));
-            if (state.searchQuery) ads = ads.filter(a => a.title.includes(state.searchQuery) || a.description.includes(state.searchQuery));
-            return ads;
-        };
-        
-        // Auto-slide
-        setInterval(() => {
-            const all = [...state.sliders.map(s => ({ ...s, title: { ar: s.title, fr: s.title }, desc: { ar: s.description, fr: s.description }, img: s.imageUrl })), ...defaultSliders];
-            if (all.length) { state.bannerIndex = (state.bannerIndex + 1) % all.length; render(); }
-        }, 3000);
-        
-        setInterval(() => { state.categoryIndex = (state.categoryIndex + 1) % 3; render(); }, 5000);
-        
-        // Auth listener
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const doc = await db.collection('users').doc(user.uid).get();
-                state.user = { uid: user.uid, email: user.email, ...doc.data() };
-                loadMessages();
-            } else {
-                state.user = null;
-            }
-            render();
-        });
-        
-        loadAds();
-        loadSliders();
-        
-        // Render
-        function render() {
-            const app = document.getElementById('app');
-            document.documentElement.lang = state.lang;
-            document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
-            
-            if (state.currentPage.startsWith('admin')) {
-                app.innerHTML = renderAdmin();
-                return;
-            }
-            
-            const allSliders = [...state.sliders.map(s => ({ ...s, title: { ar: s.title, fr: s.title }, desc: { ar: s.description, fr: s.description }, img: s.imageUrl })), ...defaultSliders];
-            const featuredAds = state.ads.filter(a => a.isFeatured && a.isActive);
-            const filteredAds = getFilteredAds();
-            const unread = state.messages.filter(m => m.receiverId === state.user?.uid && !m.isRead).length;
-            
-            app.innerHTML = `
-                <div class="toast-container">${state.toasts.map(t => `<div class="toast ${t.type}"><span class="toast-icon">${t.type === 'success' ? '✓' : t.type === 'error' ? '✕' : 'ℹ'}</span><span>${t.message}</span></div>`).join('')}</div>
+            <div class="header-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="header-search-input" placeholder="ابحث عن..." data-translate-placeholder="searchPlaceholder">
+                <button class="search-btn" id="header-search-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+
+            <div class="header-left">
+                <button class="header-btn notification-btn auth-required-btn" id="notifications-btn" style="display: none;">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                </button>
                 
-                <div class="side-menu-overlay ${state.showSideMenu ? 'open' : ''}" onclick="state.showSideMenu = false; render();"></div>
-                <div class="side-menu ${state.showSideMenu ? 'open' : ''}">
-                    <button class="side-menu-close" onclick="state.showSideMenu = false; render();">×</button>
-                    <div class="side-menu-header">
-                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" style="height: 50px;">
-                        <div><div style="font-weight: bold;">العفرون أونلاين</div><div style="font-size: 0.9rem; opacity: 0.8;">El Affroun Online</div></div>
-                    </div>
-                    <div class="side-menu-items">
-                        <button class="side-menu-item" onclick="state.currentPage = 'home'; state.selectedAd = null; state.selectedProfile = null; state.showSideMenu = false; render();"><span>🏠</span><span>${getText('home')}</span></button>
-                        <button class="side-menu-item" onclick="state.currentPage = 'ads'; state.showSideMenu = false; render();"><span>📋</span><span>${getText('allAds')}</span></button>
-                        ${state.user ? `
-                            <button class="side-menu-item" onclick="state.currentPage = 'messages'; state.showSideMenu = false; render();"><span>💬</span><span>${getText('messages')} ${unread > 0 ? `(${unread})` : ''}</span></button>
-                            <button class="side-menu-item" onclick="state.selectedProfile = { id: state.user.uid, name: state.user.name }; state.currentPage = 'profile'; state.showSideMenu = false; render();"><span>👤</span><span>${getText('myAds')}</span></button>
-                            <button class="side-menu-item" onclick="state.showEditProfileModal = true; state.showSideMenu = false; render();"><span>✏️</span><span>${getText('editProfile')}</span></button>
-                        ` : ''}
-                        <div class="side-menu-divider"></div>
-                        <button class="side-menu-item" onclick="state.currentPage = 'about'; state.showSideMenu = false; render();"><span>ℹ️</span><span>${getText('aboutUs')}</span></button>
-                        <button class="side-menu-item" onclick="state.currentPage = 'privacy'; state.showSideMenu = false; render();"><span>🔒</span><span>${getText('privacy')}</span></button>
-                        <button class="side-menu-item" onclick="state.currentPage = 'contact'; state.showSideMenu = false; render();"><span>📧</span><span>${getText('contact')}</span></button>
-                        <button class="side-menu-item" onclick="state.selectedAd = null; state.showReportModal = true; state.showSideMenu = false; render();"><span>🚩</span><span>${getText('reportProblem')}</span></button>
-                        ${state.user ? `<div class="side-menu-divider"></div><button class="side-menu-item" style="color: #ef4444;" onclick="handleLogout();"><span>🚪</span><span>${getText('logout')}</span></button>` : ''}
+                <button class="header-btn messages-btn auth-required-btn" id="messages-btn" style="display: none;">
+                    <i class="fas fa-comments"></i>
+                    <span class="notification-badge" id="messages-badge" style="display: none;">0</span>
+                </button>
+
+                <div class="user-menu" id="user-menu" style="display: none;">
+                    <button class="user-avatar-btn" id="user-avatar-btn">
+                        <span class="user-avatar" id="header-user-avatar">U</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="dropdown-header">
+                            <span class="dropdown-user-name" id="dropdown-user-name">المستخدم</span>
+                            <span class="dropdown-user-email" id="dropdown-user-email">email@example.com</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" data-page="my-ads"><i class="fas fa-bullhorn"></i><span data-translate="myAds">إعلاناتي</span></a>
+                        <a href="#" class="dropdown-item" data-page="messages"><i class="fas fa-comments"></i><span data-translate="messages">الرسائل</span></a>
+                        <a href="#" class="dropdown-item" data-page="profile"><i class="fas fa-user-edit"></i><span data-translate="editProfile">تعديل الملف</span></a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout-btn"><i class="fas fa-sign-out-alt"></i><span data-translate="logout">تسجيل الخروج</span></a>
                     </div>
                 </div>
-                
-                <header class="header">
-                    <div class="header-content">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <button class="menu-btn" onclick="state.showSideMenu = true; render();">☰</button>
-                            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" class="logo" onclick="state.currentPage = 'home'; state.selectedAd = null; state.selectedProfile = null; render();">
-                        </div>
-                        <div class="header-actions">
-                            ${state.user ? `
-                                <button class="header-btn" onclick="state.currentPage = 'messages'; render();">💬 ${unread > 0 ? `<span class="notification-badge">${unread}</span>` : ''}<span>${getText('messages')}</span></button>
-                                <button class="header-btn" onclick="handleLogout();">🚪 <span>${getText('logout')}</span></button>
-                            ` : `<button class="header-btn" onclick="state.showAuthModal = true; render();">👤 <span>${getText('login')}</span></button>`}
-                            <button class="header-btn lang-switch" onclick="state.lang = state.lang === 'ar' ? 'fr' : 'ar'; localStorage.setItem('lang', state.lang); render();">${state.lang === 'ar' ? 'FR' : 'عربي'}</button>
-                        </div>
-                    </div>
-                </header>
-                
-                ${state.currentPage === 'home' ? renderHome(allSliders, featuredAds, filteredAds) : ''}
-                ${state.currentPage === 'ads' ? renderAds(filteredAds) : ''}
-                ${state.currentPage === 'adDetail' && state.selectedAd ? renderAdDetail() : ''}
-                ${state.currentPage === 'profile' && state.selectedProfile ? renderProfile() : ''}
-                ${state.currentPage === 'messages' ? renderMsgs() : ''}
-                ${state.currentPage === 'about' ? renderAbout() : ''}
-                ${state.currentPage === 'privacy' ? renderPrivacy() : ''}
-                ${state.currentPage === 'contact' ? renderContact() : ''}
-                
-                <div class="floating-buttons">
-                    <button class="float-btn add" onclick="state.showAddAdModal = true; render();">+</button>
-                    <button class="float-btn filter" onclick="state.showFilterModal = true; render();">⚙</button>
-                    <button class="float-btn search" onclick="state.showSearchModal = true; render();">🔍</button>
+
+                <button class="header-btn login-btn" id="login-btn">
+                    <i class="fas fa-user"></i>
+                    <span data-translate="login">تسجيل الدخول</span>
+                </button>
+
+                <button class="header-btn lang-switch" id="lang-switch">
+                    <span id="lang-text">FR</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Home Page -->
+        <div id="page-home" class="page active">
+            <!-- Banner Slider -->
+            <section class="banner-slider" id="banner-slider">
+                <div class="banner-slides" id="banner-slides"></div>
+                <button class="banner-nav prev" id="banner-prev"><i class="fas fa-chevron-right"></i></button>
+                <button class="banner-nav next" id="banner-next"><i class="fas fa-chevron-left"></i></button>
+                <div class="banner-dots" id="banner-dots"></div>
+                <div class="banner-progress" id="banner-progress"></div>
+            </section>
+
+            <!-- Categories Slider -->
+            <section class="categories-section">
+                <h2 class="section-title" data-translate="categories">الفئات</h2>
+                <div class="categories-slider" id="categories-slider">
+                    <button class="cat-nav prev" id="cat-prev"><i class="fas fa-chevron-right"></i></button>
+                    <div class="categories-track" id="categories-track"></div>
+                    <button class="cat-nav next" id="cat-next"><i class="fas fa-chevron-left"></i></button>
                 </div>
-                
-                <footer class="footer">
-                    <div class="footer-content">
-                        <div class="footer-section"><h3>العفرون أونلاين</h3><p>منصة الإعلانات المبوبة الأولى</p><div class="footer-social"><a href="#">📘</a><a href="#">📷</a><a href="#">📱</a></div></div>
-                        <div class="footer-section"><h3>روابط</h3><a href="#" onclick="state.currentPage = 'home'; render();">${getText('home')}</a><a href="#" onclick="state.currentPage = 'ads'; render();">${getText('allAds')}</a><a href="#" onclick="state.currentPage = 'about'; render();">${getText('aboutUs')}</a></div>
-                        <div class="footer-section"><h3>تواصل</h3><p>📧 contact@elaffroun-online.com</p><p>📞 +213 XX XX XX XX</p><p>📍 العفرون، البليدة</p></div>
-                    </div>
-                    <div class="footer-bottom"><p>© 2024 العفرون أونلاين</p></div>
-                </footer>
-                
-                ${renderModals()}
-            `;
-        }
-        
-        function renderHome(sliders, featured, ads) {
-            return `
-                <div class="banner-slider">
-                    ${sliders.map((s, i) => `<div class="banner-slide ${i === state.bannerIndex ? 'active' : ''}"><img src="${s.img}"><div class="banner-overlay"><h2 class="banner-title">${s.title[state.lang]}</h2><p class="banner-desc">${s.desc[state.lang]}</p><button class="banner-btn" onclick="state.currentPage = 'ads'; render();">${getText('browseAds')}</button></div></div>`).join('')}
-                    <button class="banner-nav prev" onclick="state.bannerIndex = (state.bannerIndex - 1 + ${sliders.length}) % ${sliders.length}; render();">‹</button>
-                    <button class="banner-nav next" onclick="state.bannerIndex = (state.bannerIndex + 1) % ${sliders.length}; render();">›</button>
-                    <div class="banner-dots">${sliders.map((_, i) => `<button class="banner-dot ${i === state.bannerIndex ? 'active' : ''}" onclick="state.bannerIndex = ${i}; render();"></button>`).join('')}</div>
+                <div class="cat-dots" id="cat-dots"></div>
+            </section>
+
+            <!-- Featured Ads -->
+            <section class="ads-section featured-section" id="featured-section" style="display: none;">
+                <h2 class="section-title"><i class="fas fa-star"></i> <span data-translate="featuredAds">إعلانات مميزة</span></h2>
+                <div class="ads-grid" id="featured-ads"></div>
+            </section>
+
+            <!-- Latest Ads -->
+            <section class="ads-section">
+                <h2 class="section-title" data-translate="latestAds">أحدث الإعلانات</h2>
+                <div class="ads-grid" id="latest-ads"></div>
+                <div class="section-footer">
+                    <button class="btn btn-primary btn-lg" id="view-all-ads" data-page="ads">
+                        <span data-translate="viewAll">عرض الكل</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
                 </div>
-                
-                <section class="categories-section">
-                    <h2 class="section-title">${getText('categories')}</h2>
-                    <div class="categories-slider">
-                        <button class="cat-nav prev" onclick="state.categoryIndex = (state.categoryIndex - 1 + 3) % 3; render();">‹</button>
-                        <div class="categories-track" style="transform: translateX(${state.categoryIndex * 100}%);">
-                            ${[0, 1, 2].map(i => `<div class="categories-slide">${categories.slice(i * 4, i * 4 + 4).map(c => `<div class="category-card" onclick="state.filterCategory = '${c.id}'; state.currentPage = 'ads'; render();"><img src="${c.img}" class="category-img"><span class="category-name">${c.name[state.lang]}</span></div>`).join('')}</div>`).join('')}
-                        </div>
-                        <button class="cat-nav next" onclick="state.categoryIndex = (state.categoryIndex + 1) % 3; render();">›</button>
-                        <div class="cat-dots">${[0, 1, 2].map(i => `<button class="cat-dot ${i === state.categoryIndex ? 'active' : ''}" onclick="state.categoryIndex = ${i}; render();"></button>`).join('')}</div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="stat-number" id="stat-ads">0</div>
+                        <div class="stat-label" data-translate="totalAds">إجمالي الإعلانات</div>
                     </div>
-                </section>
-                
-                ${featured.length ? `<section class="ads-section" style="background: linear-gradient(135deg, #fef3c7, #fde68a);"><h2 class="section-title">⭐ ${getText('featuredAds')}</h2><div class="ads-grid">${featured.slice(0, 4).map(a => renderCard(a)).join('')}</div></section>` : ''}
-                
-                <section class="ads-section">
-                    <h2 class="section-title">${getText('latestAds')}</h2>
-                    <div class="ads-grid">${ads.slice(0, 8).map(a => renderCard(a)).join('')}</div>
-                    <div style="text-align: center; margin-top: 30px;"><button class="form-btn" style="max-width: 300px; margin: 0 auto;" onclick="state.currentPage = 'ads'; render();">${getText('viewAll')} →</button></div>
-                </section>
-            `;
-        }
-        
-        function renderAds(ads) {
-            return `<section class="ads-section" style="min-height: 80vh;"><h2 class="section-title">${getText('allAds')}</h2>${state.filterCategory || state.filterCity ? `<div style="text-align: center; margin-bottom: 20px;"><button class="form-btn secondary" style="max-width: 200px;" onclick="state.filterCategory = ''; state.filterCity = ''; state.filterPriceMin = ''; state.filterPriceMax = ''; render();">× ${getText('resetFilter')}</button></div>` : ''}<div class="ads-grid">${ads.length ? ads.map(a => renderCard(a)).join('') : '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #999;"><div style="font-size: 60px;">📭</div><p>لا توجد إعلانات</p></div>'}</div></section>`;
-        }
-        
-        function renderCard(a) {
-            return `<div class="ad-card ${a.isFeatured ? 'featured' : ''}" onclick="state.selectedAd = state.ads.find(x => x.id === '${a.id}'); state.currentPage = 'adDetail'; render();">${a.isFeatured ? '<div class="ad-featured-badge">⭐ مميز</div>' : ''}<img src="${a.imageUrl}" class="ad-image"><div class="ad-content"><span class="ad-category">${getCategoryName(a.category)}</span><h3 class="ad-title">${a.title}</h3><p class="ad-price">${formatPrice(a.price)}</p><p class="ad-location">📍 ${getCityName(a.city)}</p></div><div class="ad-footer"><span class="ad-date">${formatDate(a.createdAt)}</span><div class="ad-actions">${state.user && state.user.uid !== a.userId ? `<button class="ad-action-btn message" onclick="event.stopPropagation(); state.selectedAd = state.ads.find(x => x.id === '${a.id}'); state.showMessageModal = true; render();">💬</button>` : ''}<button class="ad-action-btn report" onclick="event.stopPropagation(); state.selectedAd = state.ads.find(x => x.id === '${a.id}'); state.showReportModal = true; render();">🚩</button></div></div></div>`;
-        }
-        
-        function renderAdDetail() {
-            const a = state.selectedAd;
-            return `<div class="ad-detail animate-fade"><button class="ad-detail-back" onclick="state.selectedAd = null; state.currentPage = 'ads'; render();">← ${getText('back')}</button><img src="${a.imageUrl}" class="ad-detail-image"><div class="ad-detail-content"><div class="ad-detail-header"><div><span class="ad-category">${getCategoryName(a.category)}</span><h1 class="ad-detail-title">${a.title}</h1></div><div class="ad-detail-price">${formatPrice(a.price)}</div></div><div class="ad-detail-meta"><span class="ad-detail-meta-item">📍 ${getCityName(a.city)}</span><span class="ad-detail-meta-item">📅 ${formatDate(a.createdAt)}</span></div><p class="ad-detail-desc">${a.description}</p><div class="ad-detail-actions"><button class="ad-detail-btn phone" onclick="${state.user ? `alert('📞 ${a.phone}')` : `state.showAuthModal = true; render();`}">📞 ${getText('showPhone')}</button><button class="ad-detail-btn message" onclick="${state.user ? `state.showMessageModal = true; render();` : `state.showAuthModal = true; render();`}">💬 ${getText('sendMessage')}</button><button class="ad-detail-btn report" onclick="state.showReportModal = true; render();">🚩 ${getText('report')}</button></div><div class="ad-seller" onclick="state.selectedProfile = { id: '${a.userId}', name: '${a.userName}' }; state.currentPage = 'profile'; render();"><div class="ad-seller-avatar">${a.userName?.charAt(0).toUpperCase() || 'U'}</div><div class="ad-seller-info"><h4>${a.userName || 'مستخدم'}</h4><p>عرض جميع إعلاناته ←</p></div></div></div></div>`;
-        }
-        
-        function renderProfile() {
-            const p = state.selectedProfile;
-            const ads = state.ads.filter(a => a.userId === p.id && a.isActive);
-            return `<div class="profile-page animate-fade"><button class="ad-detail-back" onclick="state.selectedProfile = null; state.currentPage = 'home'; render();">← ${getText('back')}</button><div class="profile-header"><div class="profile-avatar">${p.name?.charAt(0).toUpperCase() || 'U'}</div><h1 class="profile-name">${p.name || 'مستخدم'}</h1><div class="profile-stats"><div class="profile-stat"><div class="profile-stat-value">${ads.length}</div><div class="profile-stat-label">${getText('allAds')}</div></div></div></div><h2 style="margin: 30px 0 20px;">${getText('allAds')}</h2><div class="ads-grid">${ads.length ? ads.map(a => renderCard(a)).join('') : '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #999;">📭 لا توجد إعلانات</div>'}</div></div>`;
-        }
-        
-        function renderMsgs() {
-            const inbox = state.messages.filter(m => m.receiverId === state.user?.uid && !m.isRead);
-            const archive = state.messages.filter(m => m.receiverId === state.user?.uid && m.isRead);
-            const current = state.messagesTab === 'inbox' ? inbox : archive;
-            return `<div class="messages-page animate-fade"><button class="ad-detail-back" onclick="state.selectedChat = null; state.currentPage = 'home'; render();">← ${getText('back')}</button><div class="messages-container">${!state.selectedChat ? `<div class="messages-tabs"><button class="messages-tab ${state.messagesTab === 'inbox' ? 'active' : ''}" onclick="state.messagesTab = 'inbox'; render();">📥 ${getText('inbox')} (${inbox.length})</button><button class="messages-tab ${state.messagesTab === 'archive' ? 'active' : ''}" onclick="state.messagesTab = 'archive'; render();">📁 ${getText('archive')} (${archive.length})</button></div><div class="messages-list">${current.length ? current.map(m => `<div class="message-item ${!m.isRead ? 'unread' : ''}" onclick="state.selectedChat = state.messages.find(x => x.id === '${m.id}'); db.collection('messages').doc('${m.id}').update({ isRead: true }); render();"><div class="message-avatar">${m.senderName?.charAt(0).toUpperCase() || 'U'}</div><div class="message-content"><div class="message-header"><span class="message-sender">${m.senderName}</span><span class="message-time">${formatDate(m.createdAt)}</span></div><p class="message-text">${m.message}</p><small style="color: #999;">حول: ${m.adTitle}</small></div>${!m.isRead ? '<div class="message-unread-dot"></div>' : ''}</div>`).join('') : '<div style="text-align: center; padding: 60px; color: #999;">📭 ${getText("noMessages")}</div>'}</div>` : `<div class="chat-container"><div class="chat-header"><button class="chat-back" onclick="state.selectedChat = null; render();">←</button><div class="message-avatar">${state.selectedChat.senderName?.charAt(0).toUpperCase() || 'U'}</div><div><div style="font-weight: 600;">${state.selectedChat.senderId === state.user?.uid ? state.selectedChat.receiverName : state.selectedChat.senderName}</div><small style="color: #999;">${state.selectedChat.adTitle}</small></div></div><div class="chat-messages">${state.messages.filter(m => (m.senderId === state.selectedChat.senderId && m.receiverId === state.selectedChat.receiverId) || (m.senderId === state.selectedChat.receiverId && m.receiverId === state.selectedChat.senderId)).map(m => `<div class="chat-message ${m.senderId === state.user?.uid ? 'sent' : 'received'}">${m.message}</div>`).join('')}</div><form class="chat-input-container" onsubmit="event.preventDefault(); const msg = event.target.chatInput.value; if(!msg.trim()) return; db.collection('messages').add({ senderId: state.user.uid, senderName: state.user.name, receiverId: state.selectedChat.senderId === state.user.uid ? state.selectedChat.receiverId : state.selectedChat.senderId, receiverName: state.selectedChat.senderId === state.user.uid ? state.selectedChat.receiverName : state.selectedChat.senderName, adId: state.selectedChat.adId, adTitle: state.selectedChat.adTitle, message: msg, createdAt: firebase.firestore.FieldValue.serverTimestamp(), isRead: false }); event.target.chatInput.value = ''; loadMessages();"><input type="text" name="chatInput" class="chat-input" placeholder="${getText('typeMessage')}"><button type="submit" class="chat-send">➤</button></form></div>`}</div></div>`;
-        }
-        
-        function renderAbout() { return `<div class="info-page animate-fade"><button class="ad-detail-back" onclick="state.currentPage = 'home'; render();">← ${getText('back')}</button><h1>من نحن</h1><p>العفرون أونلاين هي منصة إعلانات مبوبة محلية تخدم سكان منطقة العفرون والمناطق المجاورة.</p><h2>رؤيتنا</h2><p>نسعى لتكون المنصة الأولى والأكثر موثوقية للإعلانات المبوبة في منطقتنا.</p><h2>مميزاتنا</h2><ul><li>سهولة الاستخدام</li><li>تصنيفات متعددة</li><li>نظام مراسلة آمن</li><li>دعم ثنائي اللغة</li></ul></div>`; }
-        
-        function renderPrivacy() { return `<div class="info-page animate-fade"><button class="ad-detail-back" onclick="state.currentPage = 'home'; render();">← ${getText('back')}</button><h1>سياسة الخصوصية</h1><h2>جمع المعلومات</h2><p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو نشر إعلان.</p><h2>حماية المعلومات</h2><p>نتخذ إجراءات أمنية مناسبة لحماية معلوماتك الشخصية.</p></div>`; }
-        
-        function renderContact() { return `<div class="info-page animate-fade"><button class="ad-detail-back" onclick="state.currentPage = 'home'; render();">← ${getText('back')}</button><h1>اتصل بنا</h1><p>نحن هنا لمساعدتك!</p><div class="contact-cards"><div class="contact-card"><div class="contact-card-icon">📧</div><h3>البريد</h3><p>contact@elaffroun-online.com</p></div><div class="contact-card"><div class="contact-card-icon">📞</div><h3>الهاتف</h3><p>+213 XX XX XX XX</p></div><div class="contact-card"><div class="contact-card-icon">📍</div><h3>العنوان</h3><p>العفرون، البليدة</p></div></div></div>`; }
-        
-        function renderModals() {
-            return `
-                <div class="modal-overlay ${state.showAuthModal ? 'open' : ''}" onclick="if(event.target === this) { state.showAuthModal = false; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${state.authTab === 'login' ? getText('login') : getText('register')}</h2><button class="modal-close" onclick="state.showAuthModal = false; render();">×</button></div><div class="modal-body"><div class="tabs"><button class="tab ${state.authTab === 'login' ? 'active' : ''}" onclick="state.authTab = 'login'; render();">${getText('login')}</button><button class="tab ${state.authTab === 'register' ? 'active' : ''}" onclick="state.authTab = 'register'; render();">${getText('register')}</button></div><form onsubmit="handleAuth(event)">${state.authTab === 'register' ? `<div class="form-group"><label class="form-label">${getText('name')}</label><input type="text" name="name" class="form-input" required></div>` : ''}<div class="form-group"><label class="form-label">${getText('email')}</label><input type="email" name="email" class="form-input" required></div>${state.authTab === 'register' ? `<div class="form-group"><label class="form-label">${getText('phone')}</label><input type="tel" name="phone" class="form-input" required></div>` : ''}<div class="form-group"><label class="form-label">${getText('password')}</label><input type="password" name="password" class="form-input" required minlength="6"></div>${state.authTab === 'register' ? `<div class="form-group"><label class="form-label">${getText('confirmPassword')}</label><input type="password" name="confirmPassword" class="form-input" required minlength="6"></div>` : ''}<button type="submit" class="form-btn">${state.authTab === 'login' ? getText('loginBtn') : getText('registerBtn')}</button></form></div></div></div>
-                
-                <div class="modal-overlay ${state.showAddAdModal ? 'open' : ''}" onclick="if(event.target === this) { state.showAddAdModal = false; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${getText('addAd')}</h2><button class="modal-close" onclick="state.showAddAdModal = false; render();">×</button></div><div class="modal-body"><form onsubmit="handleAddAd(event)"><div class="form-group"><label class="form-label">${getText('category')}</label><select name="category" class="form-select" required><option value="">${getText('selectCategory')}</option>${categories.map(c => `<option value="${c.id}">${c.name[state.lang]}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">${getText('title')}</label><input type="text" name="title" class="form-input" required></div><div class="form-group"><label class="form-label">${getText('description')}</label><textarea name="description" class="form-textarea" required></textarea></div><div class="form-group"><label class="form-label">${getText('price')} (${getText('da')})</label><input type="number" name="price" class="form-input" required min="0"></div><div class="form-group"><label class="form-label">${getText('city')}</label><select name="city" class="form-select" required><option value="">${getText('selectCity')}</option>${cities.map(c => `<option value="${c.id}">${c.name[state.lang]}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">${getText('phone')}</label><input type="tel" name="phone" class="form-input" required></div><div class="form-group"><label class="form-label">${getText('image')}</label><div class="image-upload" onclick="this.querySelector('input').click()"><input type="file" name="image" accept="image/*" onchange="if(this.files[0]) { this.parentElement.innerHTML = '<img src=\\'' + URL.createObjectURL(this.files[0]) + '\\' class=\\'image-preview\\'><input type=\\'file\\' name=\\'image\\' accept=\\'image/*\\' style=\\'display:none\\'>'; }"><div class="image-upload-icon">📷</div><p>${getText('uploadImage')}</p></div></div><button type="submit" class="form-btn">${getText('publish')}</button></form></div></div></div>
-                
-                <div class="modal-overlay ${state.showFilterModal ? 'open' : ''}" onclick="if(event.target === this) { state.showFilterModal = false; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${getText('filter')}</h2><button class="modal-close" onclick="state.showFilterModal = false; render();">×</button></div><div class="modal-body"><div class="filter-section"><h4>${getText('category')}</h4><div class="filter-options"><button class="filter-option ${!state.filterCategory ? 'active' : ''}" onclick="state.filterCategory = ''; render();">${getText('allCategories')}</button>${categories.map(c => `<button class="filter-option ${state.filterCategory === c.id ? 'active' : ''}" onclick="state.filterCategory = '${c.id}'; render();">${c.name[state.lang]}</button>`).join('')}</div></div><div class="filter-section"><h4>${getText('city')}</h4><div class="filter-options"><button class="filter-option ${!state.filterCity ? 'active' : ''}" onclick="state.filterCity = ''; render();">${getText('allCities')}</button>${cities.map(c => `<button class="filter-option ${state.filterCity === c.id ? 'active' : ''}" onclick="state.filterCity = '${c.id}'; render();">${c.name[state.lang]}</button>`).join('')}</div></div><div class="filter-section"><h4>${getText('priceRange')}</h4><div class="price-range"><input type="number" class="form-input" placeholder="${getText('minPrice')}" value="${state.filterPriceMin}" onchange="state.filterPriceMin = this.value; render();"><span>-</span><input type="number" class="form-input" placeholder="${getText('maxPrice')}" value="${state.filterPriceMax}" onchange="state.filterPriceMax = this.value; render();"></div></div><button class="form-btn" onclick="state.showFilterModal = false; state.currentPage = 'ads'; render();">${getText('applyFilter')}</button><button class="form-btn secondary" style="margin-top: 10px;" onclick="state.filterCategory = ''; state.filterCity = ''; state.filterPriceMin = ''; state.filterPriceMax = ''; render();">${getText('resetFilter')}</button></div></div></div>
-                
-                <div class="modal-overlay ${state.showSearchModal ? 'open' : ''}" onclick="if(event.target === this) { state.showSearchModal = false; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${getText('search')}</h2><button class="modal-close" onclick="state.showSearchModal = false; render();">×</button></div><div class="modal-body"><div class="form-group"><input type="text" class="form-input" placeholder="${getText('searchPlaceholder')}" value="${state.searchQuery}" onkeyup="state.searchQuery = this.value; render();"></div><button class="form-btn" onclick="state.showSearchModal = false; state.currentPage = 'ads'; render();">${getText('search')}</button></div></div></div>
-                
-                <div class="modal-overlay ${state.showMessageModal ? 'open' : ''}" onclick="if(event.target === this) { state.showMessageModal = false; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${getText('sendMessage')}</h2><button class="modal-close" onclick="state.showMessageModal = false; render();">×</button></div><div class="modal-body"><p style="margin-bottom: 15px;">إلى: <strong>${state.selectedAd?.userName || 'البائع'}</strong></p><p style="margin-bottom: 15px; color: #999; font-size: 0.9rem;">حول: ${state.selectedAd?.title || ''}</p><form onsubmit="handleSendMessage(event)"><div class="form-group"><textarea name="message" class="form-textarea" placeholder="${getText('typeMessage')}" required></textarea></div><button type="submit" class="form-btn">${getText('send')}</button></form></div></div></div>
-                
-                <div class="modal-overlay ${state.showReportModal ? 'open' : ''}" onclick="if(event.target === this) { state.showReportModal = false; state.selectedAd = null; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${getText('reportTitle')}</h2><button class="modal-close" onclick="state.showReportModal = false; state.selectedAd = null; render();">×</button></div><div class="modal-body">${state.selectedAd ? `<p style="margin-bottom: 15px;">حول: <strong>${state.selectedAd.title}</strong></p>` : ''}<form onsubmit="handleReport(event)"><div class="form-group"><label class="form-label">${getText('reportReason')}</label><textarea name="reason" class="form-textarea" required placeholder="اشرح سبب البلاغ..."></textarea></div><button type="submit" class="form-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626);">${getText('reportSubmit')}</button></form></div></div></div>
-                
-                <div class="modal-overlay ${state.showEditProfileModal ? 'open' : ''}" onclick="if(event.target === this) { state.showEditProfileModal = false; render(); }"><div class="modal"><div class="modal-header"><h2 class="modal-title">${getText('editProfile')}</h2><button class="modal-close" onclick="state.showEditProfileModal = false; render();">×</button></div><div class="modal-body"><form onsubmit="handleUpdateProfile(event)"><div class="form-group"><label class="form-label">${getText('name')}</label><input type="text" name="name" class="form-input" value="${state.user?.name || ''}" required></div><div class="form-group"><label class="form-label">${getText('phone')}</label><input type="tel" name="phone" class="form-input" value="${state.user?.phone || ''}" required></div><button type="submit" class="form-btn">حفظ</button></form></div></div></div>
-            `;
-        }
-        
-        // Admin Render
-        function renderAdmin() {
-            if (!state.isAdmin) {
-                return `<div class="admin-login"><div class="admin-login-card"><div class="admin-login-logo">🔐</div><h1 class="admin-login-title">لوحة تحكم الأدمن</h1><p class="admin-login-subtitle">أدخل بيانات الدخول</p><form onsubmit="handleAdminLogin(event)"><div class="form-group"><input type="text" name="username" class="form-input" placeholder="اسم المستخدم" required></div><div class="form-group"><input type="password" name="password" class="form-input" placeholder="كلمة المرور" required></div><button type="submit" class="form-btn">دخول</button></form><p style="margin-top: 20px;"><a href="#" onclick="window.location.hash = ''; state.currentPage = 'home'; render();" style="color: var(--primary);">← العودة للموقع</a></p></div></div><div class="toast-container">${state.toasts.map(t => `<div class="toast ${t.type}"><span>${t.message}</span></div>`).join('')}</div>`;
-            }
-            
-            const stats = { users: state.users.length, ads: state.ads.length, active: state.ads.filter(a => a.isActive).length, featured: state.ads.filter(a => a.isFeatured).length, reports: state.reports.filter(r => r.status === 'pending').length, messages: state.messages.length, sliders: state.sliders.length };
-            
-            return `<div class="admin-container"><div class="admin-sidebar"><div class="admin-sidebar-header"><span style="font-size: 30px;">⚙️</span><div class="admin-sidebar-logo">لوحة التحكم</div></div><nav class="admin-nav"><button class="admin-nav-item ${state.adminPage === 'dashboard' ? 'active' : ''}" onclick="state.adminPage = 'dashboard'; render();"><span>📊</span><span>الرئيسية</span></button><button class="admin-nav-item ${state.adminPage === 'ads' ? 'active' : ''}" onclick="state.adminPage = 'ads'; render();"><span>📋</span><span>الإعلانات</span></button><button class="admin-nav-item ${state.adminPage === 'users' ? 'active' : ''}" onclick="state.adminPage = 'users'; render();"><span>👥</span><span>المستخدمين</span></button><button class="admin-nav-item ${state.adminPage === 'reports' ? 'active' : ''}" onclick="state.adminPage = 'reports'; render();"><span>🚩</span><span>البلاغات</span></button><button class="admin-nav-item ${state.adminPage === 'sliders' ? 'active' : ''}" onclick="state.adminPage = 'sliders'; render();"><span>🖼️</span><span>السلايدر</span></button><button class="admin-nav-item ${state.adminPage === 'messages' ? 'active' : ''}" onclick="state.adminPage = 'messages'; render();"><span>💬</span><span>الرسائل</span></button><button class="admin-nav-item" onclick="window.location.hash = ''; state.isAdmin = false; state.currentPage = 'home'; render();"><span>🏠</span><span>العودة للموقع</span></button></nav></div><div class="admin-main"><div class="admin-header"><h1 style="font-size: 1.5rem; color: #1e293b;">${state.adminPage === 'dashboard' ? '📊 لوحة الرئيسية' : state.adminPage === 'ads' ? '📋 الإعلانات' : state.adminPage === 'users' ? '👥 المستخدمين' : state.adminPage === 'reports' ? '🚩 البلاغات' : state.adminPage === 'sliders' ? '🖼️ السلايدر' : '💬 الرسائل'}</h1><span style="color: #64748b;">مرحباً، Admin</span></div><div class="admin-content">${state.adminPage === 'dashboard' ? `<div class="admin-stats"><div class="admin-stat-card"><div class="admin-stat-icon blue">👥</div><div class="admin-stat-info"><h3>${stats.users}</h3><p>المستخدمين</p></div></div><div class="admin-stat-card"><div class="admin-stat-icon green">📋</div><div class="admin-stat-info"><h3>${stats.ads}</h3><p>الإعلانات</p></div></div><div class="admin-stat-card"><div class="admin-stat-icon orange">⭐</div><div class="admin-stat-info"><h3>${stats.featured}</h3><p>مميزة</p></div></div><div class="admin-stat-card"><div class="admin-stat-icon red">🚩</div><div class="admin-stat-info"><h3>${stats.reports}</h3><p>بلاغات</p></div></div><div class="admin-stat-card"><div class="admin-stat-icon purple">💬</div><div class="admin-stat-info"><h3>${stats.messages}</h3><p>الرسائل</p></div></div><div class="admin-stat-card"><div class="admin-stat-icon blue">🖼️</div><div class="admin-stat-info"><h3>${stats.sliders}</h3><p>سلايدرات</p></div></div></div><div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">أحدث الإعلانات</h3></div><table class="admin-table"><thead><tr><th>الصورة</th><th>العنوان</th><th>الفئة</th><th>السعر</th><th>الحالة</th></tr></thead><tbody>${state.ads.slice(0, 5).map(a => `<tr><td><img src="${a.imageUrl}" class="admin-table-img"></td><td>${a.title}</td><td>${getCategoryName(a.category)}</td><td>${formatPrice(a.price)}</td><td><span class="admin-badge ${a.isActive ? 'success' : 'danger'}">${a.isActive ? 'نشط' : 'معطل'}</span></td></tr>`).join('')}</tbody></table></div>` : ''}${state.adminPage === 'ads' ? `<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">جميع الإعلانات (${state.ads.length})</h3></div><table class="admin-table"><thead><tr><th>الصورة</th><th>العنوان</th><th>الفئة</th><th>السعر</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${state.ads.map(a => `<tr><td><img src="${a.imageUrl}" class="admin-table-img"></td><td>${a.title}</td><td>${getCategoryName(a.category)}</td><td>${formatPrice(a.price)}</td><td><span class="admin-badge ${a.isActive ? 'success' : 'danger'}">${a.isActive ? 'نشط' : 'معطل'}</span> ${a.isFeatured ? '<span class="admin-badge warning">⭐</span>' : ''}</td><td><button class="admin-btn ${a.isFeatured ? 'warning' : 'primary'}" onclick="toggleFeatured('${a.id}', ${a.isFeatured})">${a.isFeatured ? '⭐ إلغاء' : '⭐ تمييز'}</button> <button class="admin-btn ${a.isActive ? 'danger' : 'success'}" onclick="toggleActive('${a.id}', ${a.isActive})">${a.isActive ? 'تعطيل' : 'تفعيل'}</button> <button class="admin-btn danger" onclick="deleteAd('${a.id}')">حذف</button></td></tr>`).join('')}</tbody></table></div>` : ''}${state.adminPage === 'users' ? `<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">المستخدمين (${state.users.length})</h3></div><table class="admin-table"><thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>تاريخ التسجيل</th><th>إجراءات</th></tr></thead><tbody>${state.users.map(u => `<tr><td>${u.name || '-'}</td><td>${u.email}</td><td>${u.phone || '-'}</td><td>${formatDate(u.createdAt)}</td><td><button class="admin-btn danger" onclick="deleteUser('${u.id}')">حذف</button></td></tr>`).join('')}</tbody></table></div>` : ''}${state.adminPage === 'reports' ? `<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">البلاغات (${state.reports.length})</h3></div><table class="admin-table"><thead><tr><th>المُبلغ</th><th>الإعلان</th><th>السبب</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${state.reports.map(r => `<tr><td>${r.reporterName}</td><td>${r.adTitle}</td><td>${r.reason}</td><td><span class="admin-badge ${r.status === 'pending' ? 'warning' : r.status === 'resolved' ? 'success' : 'danger'}">${r.status === 'pending' ? 'معلق' : r.status === 'resolved' ? 'تم الحل' : 'مرفوض'}</span></td><td><button class="admin-btn success" onclick="updateReport('${r.id}', 'resolved')">✓</button> <button class="admin-btn danger" onclick="updateReport('${r.id}', 'rejected')">✕</button></td></tr>`).join('')}</tbody></table></div>` : ''}${state.adminPage === 'sliders' ? `<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">إضافة سلايدر</h3></div><form onsubmit="handleAddSlider(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;"><input type="text" name="title" class="form-input" placeholder="العنوان" required><input type="text" name="description" class="form-input" placeholder="الوصف" required><input type="url" name="imageUrl" class="form-input" placeholder="رابط الصورة" required><input type="url" name="link" class="form-input" placeholder="الرابط (اختياري)"><button type="submit" class="admin-btn primary">إضافة</button></form></div><div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">السلايدرات (${state.sliders.length})</h3></div><table class="admin-table"><thead><tr><th>الصورة</th><th>العنوان</th><th>الوصف</th><th>إجراءات</th></tr></thead><tbody>${state.sliders.map(s => `<tr><td><img src="${s.imageUrl}" class="admin-table-img"></td><td>${s.title}</td><td>${s.description}</td><td><button class="admin-btn danger" onclick="deleteSlider('${s.id}')">حذف</button></td></tr>`).join('')}</tbody></table></div>` : ''}${state.adminPage === 'messages' ? `<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">الرسائل (${state.messages.length})</h3></div><table class="admin-table"><thead><tr><th>المرسل</th><th>المستلم</th><th>الإعلان</th><th>الرسالة</th><th>التاريخ</th></tr></thead><tbody>${state.messages.map(m => `<tr><td>${m.senderName}</td><td>${m.receiverName}</td><td>${m.adTitle}</td><td>${m.message.substring(0, 50)}...</td><td>${formatDate(m.createdAt)}</td></tr>`).join('')}</tbody></table></div>` : ''}</div></div></div><div class="toast-container">${state.toasts.map(t => `<div class="toast ${t.type}"><span>${t.message}</span></div>`).join('')}</div>`;
-        }
-        
-        render();
-    </script>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-number" id="stat-users">0</div>
+                        <div class="stat-label" data-translate="totalUsers">المستخدمين</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="stat-number" id="stat-cities">6</div>
+                        <div class="stat-label" data-translate="cities">المدن</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-th-large"></i></div>
+                        <div class="stat-number" id="stat-categories">12</div>
+                        <div class="stat-label" data-translate="categoriesCount">الفئات</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- All Ads Page -->
+        <div id="page-ads" class="page">
+            <div class="page-header">
+                <h1 class="page-title" data-translate="allAds">جميع الإعلانات</h1>
+                <div class="active-filters" id="active-filters"></div>
+            </div>
+            <div class="ads-grid" id="all-ads"></div>
+            <div class="no-results" id="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <p data-translate="noResults">لا توجد نتائج</p>
+            </div>
+        </div>
+
+        <!-- Ad Detail Page -->
+        <div id="page-ad-detail" class="page">
+            <div class="ad-detail" id="ad-detail-content"></div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="page-profile" class="page">
+            <div class="profile-page" id="profile-content"></div>
+        </div>
+
+        <!-- Messages Page -->
+        <div id="page-messages" class="page">
+            <div class="messages-page" id="messages-content"></div>
+        </div>
+
+        <!-- My Ads Page -->
+        <div id="page-my-ads" class="page">
+            <div class="my-ads-page">
+                <h1 class="page-title" data-translate="myAds">إعلاناتي</h1>
+                <div class="ads-grid" id="my-ads-grid"></div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="page-about" class="page">
+            <div class="info-page">
+                <button class="back-btn" data-page="home"><i class="fas fa-arrow-right"></i> <span data-translate="back">رجوع</span></button>
+                <h1 data-translate="aboutUs">من نحن</h1>
+                <div class="info-content">
+                    <p>العفرون أونلاين هي منصة إعلانات مبوبة محلية تخدم سكان منطقة العفرون والمناطق المجاورة في ولاية البليدة، الجزائر.</p>
+                    <h2>رؤيتنا</h2>
+                    <p>نسعى لتكون المنصة الأولى والأكثر موثوقية للإعلانات المبوبة في منطقتنا، حيث يمكن للجميع البيع والشراء بسهولة وأمان.</p>
+                    <h2>مميزاتنا</h2>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> سهولة الاستخدام والنشر</li>
+                        <li><i class="fas fa-check-circle"></i> تصنيفات متعددة تغطي جميع الاحتياجات</li>
+                        <li><i class="fas fa-check-circle"></i> نظام مراسلة آمن</li>
+                        <li><i class="fas fa-check-circle"></i> دعم ثنائي اللغة (العربية والفرنسية)</li>
+                        <li><i class="fas fa-check-circle"></i> تصميم متجاوب يعمل على جميع الأجهزة</li>
+                    </ul>
+                    <h2>فريقنا</h2>
+                    <p>نحن فريق من المطورين والمصممين المحليين نعمل بشغف لتقديم أفضل تجربة للمستخدمين.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Page -->
+        <div id="page-privacy" class="page">
+            <div class="info-page">
+                <button class="back-btn" data-page="home"><i class="fas fa-arrow-right"></i> <span data-translate="back">رجوع</span></button>
+                <h1 data-translate="privacy">سياسة الخصوصية</h1>
+                <div class="info-content">
+                    <h2>جمع المعلومات</h2>
+                    <p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب أو نشر إعلان، مثل الاسم والبريد الإلكتروني ورقم الهاتف.</p>
+                    <h2>استخدام المعلومات</h2>
+                    <p>نستخدم المعلومات المجمعة لتقديم خدماتنا وتحسينها، والتواصل معك، وضمان أمان المنصة.</p>
+                    <h2>حماية المعلومات</h2>
+                    <p>نتخذ إجراءات أمنية مناسبة لحماية معلوماتك الشخصية من الوصول غير المصرح به أو التعديل أو الإفشاء أو الإتلاف.</p>
+                    <h2>مشاركة المعلومات</h2>
+                    <p>لا نشارك معلوماتك الشخصية مع أطراف ثالثة إلا في الحالات التالية:</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> بموافقتك الصريحة</li>
+                        <li><i class="fas fa-check-circle"></i> للامتثال للقوانين واللوائح</li>
+                        <li><i class="fas fa-check-circle"></i> لحماية حقوقنا وممتلكاتنا</li>
+                    </ul>
+                    <h2>ملفات تعريف الارتباط</h2>
+                    <p>نستخدم ملفات تعريف الارتباط لتحسين تجربتك على الموقع وتذكر تفضيلاتك.</p>
+                    <h2>حقوقك</h2>
+                    <p>يحق لك الوصول إلى معلوماتك الشخصية وتصحيحها أو حذفها في أي وقت.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div id="page-contact" class="page">
+            <div class="info-page">
+                <button class="back-btn" data-page="home"><i class="fas fa-arrow-right"></i> <span data-translate="back">رجوع</span></button>
+                <h1 data-translate="contact">اتصل بنا</h1>
+                <div class="info-content">
+                    <p>نحن هنا لمساعدتك! يمكنك التواصل معنا عبر أي من الطرق التالية:</p>
+                    <div class="contact-cards">
+                        <div class="contact-card">
+                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            <h3>البريد الإلكتروني</h3>
+                            <p>contact@elaffroun-online.com</p>
+                        </div>
+                        <div class="contact-card">
+                            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                            <h3>الهاتف</h3>
+                            <p dir="ltr">+213 XX XX XX XX</p>
+                        </div>
+                        <div class="contact-card">
+                            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <h3>العنوان</h3>
+                            <p>العفرون، البليدة، الجزائر</p>
+                        </div>
+                        <div class="contact-card">
+                            <div class="contact-icon"><i class="fab fa-facebook"></i></div>
+                            <h3>فيسبوك</h3>
+                            <p>@ElAffrounOnline</p>
+                        </div>
+                    </div>
+                    <div class="contact-form-section">
+                        <h2>أرسل لنا رسالة</h2>
+                        <form class="contact-form" id="contact-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><i class="fas fa-user"></i> الاسم</label>
+                                    <input type="text" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                                    <input type="email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-heading"></i> الموضوع</label>
+                                <input type="text" name="subject" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-comment-alt"></i> الرسالة</label>
+                                <textarea name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> إرسال الرسالة
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Buttons -->
+    <div class="floating-buttons" id="floating-buttons">
+        <button class="float-btn add-btn" id="add-ad-btn" title="نشر إعلان">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="float-btn filter-btn" id="filter-btn" title="فلترة">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+        <button class="float-btn search-btn" id="float-search-btn" title="بحث">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbOPPWZ_6FVtNvqp4-S8RbzejyQt75-0jLytLFSUotGJn21nup8dvMv_qdHK8t3Aapqj6PmZwFQ2HuQtI4pt4lK-cTnKAWzwoqZAXya8dxmXJ0xpE14binYHeEMdacOXNiQkAl69t1fv4Yp6XsjLsGEIUUcrxs8JK43E1QhQRsAyf3GTWuZPZ-zYpcOBU/s320/Picsart_26-02-09_09-40-35-888.png" alt="Logo">
+                </div>
+                <h3>العفرون أونلاين</h3>
+                <p>منصة الإعلانات المبوبة الأولى في منطقة العفرون والمناطق المجاورة.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>روابط سريعة</h3>
+                <ul class="footer-links">
+                    <li><a href="#" data-page="home"><i class="fas fa-chevron-left"></i> الرئيسية</a></li>
+                    <li><a href="#" data-page="ads"><i class="fas fa-chevron-left"></i> جميع الإعلانات</a></li>
+                    <li><a href="#" data-page="about"><i class="fas fa-chevron-left"></i> من نحن</a></li>
+                    <li><a href="#" data-page="privacy"><i class="fas fa-chevron-left"></i> سياسة الخصوصية</a></li>
+                    <li><a href="#" data-page="contact"><i class="fas fa-chevron-left"></i> اتصل بنا</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>الفئات</h3>
+                <ul class="footer-links" id="footer-categories"></ul>
+            </div>
+            <div class="footer-section">
+                <h3>تواصل معنا</h3>
+                <ul class="footer-contact">
+                    <li><i class="fas fa-envelope"></i> contact@elaffroun-online.com</li>
+                    <li><i class="fas fa-phone"></i> <span dir="ltr">+213 XX XX XX XX</span></li>
+                    <li><i class="fas fa-map-marker-alt"></i> العفرون، البليدة، الجزائر</li>
+                </ul>
+                <div class="footer-app">
+                    <p>حمل التطبيق قريباً</p>
+                    <div class="app-buttons">
+                        <a href="#" class="app-btn"><i class="fab fa-google-play"></i></a>
+                        <a href="#" class="app-btn"><i class="fab fa-apple"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 العفرون أونلاين - جميع الحقوق محفوظة</p>
+            <p>تصميم وتطوير بـ <i class="fas fa-heart" style="color: #ef4444;"></i> في الجزائر</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <div class="modal-tabs">
+                    <button class="modal-tab active" data-tab="login" data-translate="login">تسجيل الدخول</button>
+                    <button class="modal-tab" data-tab="register" data-translate="register">إنشاء حساب</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> <span data-translate="email">البريد الإلكتروني</span></label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> <span data-translate="password">كلمة المرور</span></label>
+                        <div class="password-input">
+                            <input type="password" name="password" required>
+                            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> <span data-translate="loginBtn">دخول</span>
+                    </button>
+                    <div class="form-footer">
+                        <a href="#" class="forgot-password">نسيت كلمة المرور؟</a>
+                    </div>
+                </form>
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> <span data-translate="name">الاسم</span></label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> <span data-translate="email">البريد الإلكتروني</span></label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> <span data-translate="phone">رقم الهاتف</span></label>
+                        <input type="tel" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> <span data-translate="password">كلمة المرور</span></label>
+                        <div class="password-input">
+                            <input type="password" name="password" required minlength="6">
+                            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> <span data-translate="confirmPassword">تأكيد كلمة المرور</span></label>
+                        <div class="password-input">
+                            <input type="password" name="confirmPassword" required minlength="6">
+                            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-user-plus"></i> <span data-translate="registerBtn">تسجيل</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Ad Modal -->
+    <div class="modal-overlay" id="add-ad-modal">
+        <div class="modal modal-lg">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-plus-circle"></i> <span data-translate="addAd">نشر إعلان جديد</span></h2>
+            </div>
+            <div class="modal-body">
+                <form id="add-ad-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-th-large"></i> <span data-translate="category">الفئة</span> *</label>
+                            <select name="category" required>
+                                <option value="" data-translate="selectCategory">اختر الفئة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> <span data-translate="city">المدينة</span> *</label>
+                            <select name="city" required>
+                                <option value="" data-translate="selectCity">اختر المدينة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-heading"></i> <span data-translate="title">العنوان</span> *</label>
+                        <input type="text" name="title" required maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> <span data-translate="description">الوصف</span> *</label>
+                        <textarea name="description" rows="4" required maxlength="1000"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> <span data-translate="price">السعر</span> (دج) *</label>
+                            <input type="number" name="price" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> <span data-translate="phone">رقم الهاتف</span> *</label>
+                            <input type="tel" name="phone" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-image"></i> <span data-translate="image">الصورة</span></label>
+                        <div class="image-upload" id="image-upload">
+                            <input type="file" name="image" accept="image/*" id="image-input">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p data-translate="uploadImage">انقر لرفع صورة</p>
+                                <span>PNG, JPG, JPEG (Max 5MB)</span>
+                            </div>
+                            <img src="" alt="" class="image-preview" id="image-preview">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <i class="fas fa-paper-plane"></i> <span data-translate="publish">نشر الإعلان</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Modal -->
+    <div class="modal-overlay" id="filter-modal">
+        <div class="modal">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-sliders-h"></i> <span data-translate="filter">فلترة النتائج</span></h2>
+            </div>
+            <div class="modal-body">
+                <div class="filter-section">
+                    <h4><i class="fas fa-th-large"></i> <span data-translate="category">الفئة</span></h4>
+                    <div class="filter-options" id="filter-categories"></div>
+                </div>
+                <div class="filter-section">
+                    <h4><i class="fas fa-map-marker-alt"></i> <span data-translate="city">المدينة</span></h4>
+                    <div class="filter-options" id="filter-cities"></div>
+                </div>
+                <div class="filter-section">
+                    <h4><i class="fas fa-tag"></i> <span data-translate="priceRange">نطاق السعر</span></h4>
+                    <div class="price-range">
+                        <div class="form-group">
+                            <input type="number" id="filter-price-min" placeholder="أدنى سعر" min="0">
+                        </div>
+                        <span class="price-separator">-</span>
+                        <div class="form-group">
+                            <input type="number" id="filter-price-max" placeholder="أقصى سعر" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary btn-block" id="apply-filter">
+                        <i class="fas fa-check"></i> <span data-translate="applyFilter">تطبيق الفلتر</span>
+                    </button>
+                    <button class="btn btn-secondary btn-block" id="reset-filter">
+                        <i class="fas fa-undo"></i> <span data-translate="resetFilter">إعادة تعيين</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal-overlay" id="search-modal">
+        <div class="modal">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-search"></i> <span data-translate="search">بحث</span></h2>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="modal-search-input" placeholder="ابحث عن..." autofocus>
+                </div>
+                <div class="search-suggestions" id="search-suggestions"></div>
+                <button class="btn btn-primary btn-block" id="modal-search-btn">
+                    <i class="fas fa-search"></i> <span data-translate="search">بحث</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div class="modal-overlay" id="message-modal">
+        <div class="modal">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-comment-alt"></i> <span data-translate="sendMessage">مراسلة البائع</span></h2>
+            </div>
+            <div class="modal-body">
+                <div class="message-to">
+                    <span>إلى:</span>
+                    <strong id="message-to-name">البائع</strong>
+                </div>
+                <div class="message-about">
+                    <span>حول:</span>
+                    <span id="message-about-ad">الإعلان</span>
+                </div>
+                <form id="message-form">
+                    <div class="form-group">
+                        <textarea name="message" rows="4" placeholder="اكتب رسالتك هنا..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> <span data-translate="send">إرسال</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="report-modal">
+        <div class="modal">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-flag"></i> <span data-translate="reportTitle">الإبلاغ</span></h2>
+            </div>
+            <div class="modal-body">
+                <div class="report-about" id="report-about"></div>
+                <form id="report-form">
+                    <div class="form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> <span data-translate="reportReason">سبب البلاغ</span></label>
+                        <select name="reason" required>
+                            <option value="">اختر السبب</option>
+                            <option value="spam">محتوى مزعج / سبام</option>
+                            <option value="fake">إعلان وهمي / احتيال</option>
+                            <option value="inappropriate">محتوى غير لائق</option>
+                            <option value="wrong-category">فئة خاطئة</option>
+                            <option value="duplicate">إعلان مكرر</option>
+                            <option value="other">سبب آخر</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-comment-alt"></i> تفاصيل إضافية</label>
+                        <textarea name="details" rows="3" placeholder="اشرح المشكلة..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block">
+                        <i class="fas fa-flag"></i> <span data-translate="reportSubmit">إرسال البلاغ</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal">
+            <button class="modal-close" data-close-modal><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-user-edit"></i> <span data-translate="editProfile">تعديل الملف الشخصي</span></h2>
+            </div>
+            <div class="modal-body">
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> <span data-translate="name">الاسم</span></label>
+                        <input type="text" name="name" id="edit-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> <span data-translate="phone">رقم الهاتف</span></label>
+                        <input type="tel" name="phone" id="edit-phone" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save"></i> حفظ التغييرات
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div class="modal-overlay image-viewer-overlay" id="image-viewer">
+        <button class="image-viewer-close" data-close-modal><i class="fas fa-times"></i></button>
+        <img src="" alt="" class="image-viewer-img" id="image-viewer-img">
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
